@@ -1,0 +1,132 @@
+// ─── Colours ──────────────────────────────────────────────────────────────────
+export const C = {
+  green:      "#1a5c2e",
+  greenDark:  "#0e3a1c",
+  greenMid:   "#236b36",
+  greenLight: "#2e8444",
+  greenPale:  "#e6f2ea",
+  greenFade:  "#d0e8d7",
+  gold:       "#c8a02a",
+  goldLight:  "#e2b83a",
+  goldPale:   "#fdf6e0",
+  cream:      "#f8f5ef",
+  white:      "#ffffff",
+  dark:       "#0c1f12",
+  gray:       "#6b8672",
+  grayLight:  "#e0ebe3",
+  grayMid:    "#b4cabb",
+  red:        "#b32b2b",
+  redPale:    "#fceaea",
+  blue:       "#1a4f7a",
+  bluePale:   "#e3eef8",
+  orange:     "#b85c18",
+  orangePale: "#fdf0e6",
+};
+
+// ─── Shared style constants ───────────────────────────────────────────────────
+export const IS = {
+  width:"100%", boxSizing:"border-box",
+  border:`1.5px solid ${C.grayLight}`,
+  borderRadius:8, padding:"8px 11px",
+  fontSize:14, fontFamily:"'Source Sans 3', sans-serif",
+  color:C.dark, background:C.white, outline:"none",
+};
+
+export const BG = {
+  background:`linear-gradient(135deg,${C.greenDark},${C.green})`,
+  color:C.white, border:`1px solid ${C.gold}33`, borderRadius:9,
+  padding:"9px 16px", cursor:"pointer", display:"flex",
+  alignItems:"center", gap:6, fontSize:13,
+  fontFamily:"'Source Sans 3', sans-serif",
+  fontWeight:"700", letterSpacing:"0.3px", flexShrink:0,
+};
+
+export const BS = {
+  background:C.grayLight, color:C.dark, border:"none", borderRadius:9,
+  padding:"9px 16px", cursor:"pointer", fontSize:13,
+  fontFamily:"'Source Sans 3', sans-serif",
+};
+
+export const BSm = bg => ({
+  background:bg, color:"#fff", border:"none", borderRadius:7,
+  padding:"4px 10px", cursor:"pointer", display:"flex",
+  alignItems:"center", gap:3, fontSize:12,
+  fontFamily:"'Source Sans 3', sans-serif", flexShrink:0,
+});
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+export const POSITIONS  = ["GR","DD","DC","DE","MCD","MC","MCO","ED","EC","EE","AV"];
+export const ESCALOES   = ["Sub-15","Sub-16","Sub-17","Sub-18","Seniores"];
+export const BLOOD_TYPES = ["A+","A-","B+","B-","AB+","AB-","O+","O-"];
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+export const fmtDate = d => {
+  if (!d) return "";
+  const [y,m,day] = d.split("-");
+  return `${day}/${m}/${y}`;
+};
+export const today  = () => new Date().toISOString().slice(0,10);
+export const nextId = arr => arr.length ? Math.max(...arr.map(x=>x.id))+1 : 1;
+
+// ─── LocalStorage helpers (no window.storage needed for production) ───────────
+export function lsGet(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : fallback;
+  } catch { return fallback; }
+}
+export function lsSet(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+}
+
+// ─── Seed data ────────────────────────────────────────────────────────────────
+export const SEED_ATHLETES = [
+  {id:1,name:"João Silva",position:"GR",age:17,escalao:"Sub-18",number:1,goals:0,assists:0,yellowCards:1,redCards:0,trainings:12,phone:"912000001",parentPhone:"912000002",parentName:"Carlos Silva",parentEmail:"carlos@email.pt",pin:"1111"},
+  {id:2,name:"Rui Santos",position:"DD",age:16,escalao:"Sub-18",number:2,goals:2,assists:3,yellowCards:2,redCards:0,trainings:14,phone:"912000003",parentPhone:"912000004",parentName:"Ana Santos",parentEmail:"ana@email.pt",pin:"2222"},
+  {id:3,name:"Pedro Matos",position:"DC",age:17,escalao:"Sub-18",number:5,goals:1,assists:0,yellowCards:0,redCards:0,trainings:15,phone:"912000005",parentPhone:"912000006",parentName:"Luísa Matos",parentEmail:"luisa@email.pt",pin:"3333"},
+  {id:4,name:"Tiago Costa",position:"DC",age:15,escalao:"Sub-17",number:4,goals:0,assists:1,yellowCards:1,redCards:1,trainings:10,phone:"912000007",parentPhone:"912000008",parentName:"Mário Costa",parentEmail:"mario@email.pt",pin:"4444"},
+  {id:5,name:"André Lopes",position:"MC",age:16,escalao:"Sub-17",number:8,goals:4,assists:5,yellowCards:0,redCards:0,trainings:16,phone:"912000009",parentPhone:"912000010",parentName:"Sofia Lopes",parentEmail:"sofia@email.pt",pin:"5555"},
+  {id:6,name:"Miguel Ferreira",position:"MC",age:17,escalao:"Sub-18",number:6,goals:3,assists:7,yellowCards:3,redCards:0,trainings:13,phone:"912000011",parentPhone:"912000012",parentName:"João Ferreira",parentEmail:"jferreira@email.pt",pin:"6666"},
+  {id:7,name:"Luís Oliveira",position:"AV",age:16,escalao:"Sub-17",number:11,goals:8,assists:2,yellowCards:1,redCards:0,trainings:15,phone:"912000013",parentPhone:"912000014",parentName:"Teresa Oliveira",parentEmail:"teresa@email.pt",pin:"7777"},
+  {id:8,name:"Diogo Nunes",position:"AV",age:17,escalao:"Sub-18",number:9,goals:11,assists:3,yellowCards:2,redCards:0,trainings:14,phone:"912000015",parentPhone:"912000016",parentName:"Paulo Nunes",parentEmail:"paulo@email.pt",pin:"8888"},
+];
+
+export const SEED_MEDICAL = {
+  1:{bloodType:"A+",allergies:"Nenhuma",conditions:"Nenhuma",insurance:"ADSE",insuranceNum:"12345",emergencyContact:"Carlos Silva",emergencyPhone:"912000002",notes:""},
+  2:{bloodType:"O+",allergies:"Penicilina",conditions:"Asma ligeira",insurance:"SNS",insuranceNum:"",emergencyContact:"Ana Santos",emergencyPhone:"912000004",notes:"Usa inalador antes do treino"},
+  3:{bloodType:"B+",allergies:"Nenhuma",conditions:"Nenhuma",insurance:"Médis",insuranceNum:"67890",emergencyContact:"Luísa Matos",emergencyPhone:"912000006",notes:""},
+};
+
+export const SEED_TRAININGS = [
+  {id:1,date:"2026-05-20",title:"Treino Físico + Tática",duration:90,escalao:"Sub-18",description:"Aquecimento, resistência, organização defensiva 4-3-3",objectives:"Melhorar cobertura defensiva",attendees:[1,2,3,5,6,8]},
+  {id:2,date:"2026-05-22",title:"Finalização e Bolas Paradas",duration:75,escalao:"Sub-17",description:"Trabalho de finalização, livre direto e penálti",objectives:"Aumentar eficácia ofensiva",attendees:[4,5,7]},
+  {id:3,date:"2026-05-27",title:"Jogo Treino",duration:60,escalao:"Sub-18",description:"Jogo interno Sub-18 vs Sub-17",objectives:"Aplicar sistema 4-3-3",attendees:[1,2,3,5,6,7,8]},
+];
+
+export const SEED_GAMES = [
+  {id:1,date:"2026-05-31",time:"15:00",opponent:"SC Penafiel B",local:true,escalao:"Sub-18",competition:"Distrital Porto",result:"",squad:[1,2,3,5,6,7,8],notes:"Jogo em casa — Campo Municipal"},
+  {id:2,date:"2026-06-07",time:"10:30",opponent:"FC Castelo de Paiva",local:false,escalao:"Sub-17",competition:"Distrital Aveiro",result:"2-1",squad:[4,5,7],notes:"Deslocação — partida às 09:00"},
+];
+
+export const SEED_CALENDAR = [
+  {id:1,date:"2026-05-31",title:"Jogo Sub-18 vs SC Penafiel B",type:"jogo",escalao:"Sub-18",location:"Campo Municipal SLD"},
+  {id:2,date:"2026-06-07",title:"Jogo Sub-17 em Castelo de Paiva",type:"jogo",escalao:"Sub-17",location:"Castelo de Paiva"},
+  {id:3,date:"2026-06-15",title:"Reunião de Pais",type:"reuniao",escalao:"Todos",location:"Sede do Clube"},
+  {id:4,date:"2026-06-21",title:"Festa de Fim de Época",type:"evento",escalao:"Todos",location:"Campo Municipal SLD"},
+];
+
+export const SEED_MESSAGES = [
+  {id:1,from:"Treinador",escalao:"Todos",text:"Treino amanhã às 18h. Trazer equipamento completo.",date:"2026-05-26",type:"aviso"},
+  {id:2,from:"Treinador",escalao:"Sub-18",text:"Convocatória para jogo de sábado publicada. Confirmem presença.",date:"2026-05-25",type:"convocatoria"},
+];
+
+export const SEED_PARENT_MSGS = [
+  {id:1,parentName:"Ana Santos",athleteId:2,text:"O Rui não pode treinar na quinta — tem consulta médica.",date:"2026-05-26",read:false},
+  {id:2,parentName:"Mário Costa",athleteId:4,text:"O Tiago está com dores no joelho. Pode fazer treino ligeiro?",date:"2026-05-25",read:false},
+];
+
+export const SEED_FAQS = [
+  {id:1,question:"Que equipamento devo trazer?",answer:"Chuteiras, meias, calções e camisola do clube. Em dias de chuva, agasalho e botas."},
+  {id:2,question:"Como faço para justificar uma falta?",answer:"Contacte o treinador pelo telemóvel até 2 horas antes do treino."},
+  {id:3,question:"Quais são os horários de treino?",answer:"Sub-17 e Sub-18: terça e quinta das 18h às 19h30. Jogo ao sábado ou domingo conforme calendário."},
+];
