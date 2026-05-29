@@ -1,132 +1,531 @@
-// ─── Colours ──────────────────────────────────────────────────────────────────
-export const C = {
-  green:      "#1a5c2e",
-  greenDark:  "#0e3a1c",
-  greenMid:   "#236b36",
-  greenLight: "#2e8444",
-  greenPale:  "#e6f2ea",
-  greenFade:  "#d0e8d7",
-  gold:       "#c8a02a",
-  goldLight:  "#e2b83a",
-  goldPale:   "#fdf6e0",
-  cream:      "#f8f5ef",
-  white:      "#ffffff",
-  dark:       "#0c1f12",
-  gray:       "#6b8672",
-  grayLight:  "#e0ebe3",
-  grayMid:    "#b4cabb",
-  red:        "#b32b2b",
-  redPale:    "#fceaea",
-  blue:       "#1a4f7a",
-  bluePale:   "#e3eef8",
-  orange:     "#b85c18",
-  orangePale: "#fdf0e6",
-};
-
-// ─── Shared style constants ───────────────────────────────────────────────────
-export const IS = {
-  width:"100%", boxSizing:"border-box",
-  border:`1.5px solid ${C.grayLight}`,
-  borderRadius:8, padding:"8px 11px",
-  fontSize:14, fontFamily:"'Source Sans 3', sans-serif",
-  color:C.dark, background:C.white, outline:"none",
-};
-
-export const BG = {
-  background:`linear-gradient(135deg,${C.greenDark},${C.green})`,
-  color:C.white, border:`1px solid ${C.gold}33`, borderRadius:9,
-  padding:"9px 16px", cursor:"pointer", display:"flex",
-  alignItems:"center", gap:6, fontSize:13,
-  fontFamily:"'Source Sans 3', sans-serif",
-  fontWeight:"700", letterSpacing:"0.3px", flexShrink:0,
-};
-
-export const BS = {
-  background:C.grayLight, color:C.dark, border:"none", borderRadius:9,
-  padding:"9px 16px", cursor:"pointer", fontSize:13,
-  fontFamily:"'Source Sans 3', sans-serif",
-};
-
-export const BSm = bg => ({
-  background:bg, color:"#fff", border:"none", borderRadius:7,
-  padding:"4px 10px", cursor:"pointer", display:"flex",
-  alignItems:"center", gap:3, fontSize:12,
-  fontFamily:"'Source Sans 3', sans-serif", flexShrink:0,
-});
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-export const POSITIONS  = ["GR","DD","DC","DE","MCD","MC","MCO","ED","EC","EE","AV"];
-export const ESCALOES   = ["Sub-15","Sub-16","Sub-17","Sub-18","Seniores"];
-export const BLOOD_TYPES = ["A+","A-","B+","B-","AB+","AB-","O+","O-"];
-
-// ─── Utils ────────────────────────────────────────────────────────────────────
-export const fmtDate = d => {
-  if (!d) return "";
-  const [y,m,day] = d.split("-");
-  return `${day}/${m}/${y}`;
-};
-export const today  = () => new Date().toISOString().slice(0,10);
-export const nextId = arr => arr.length ? Math.max(...arr.map(x=>x.id))+1 : 1;
-
-// ─── LocalStorage helpers (no window.storage needed for production) ───────────
-export function lsGet(key, fallback) {
-  try {
-    const v = localStorage.getItem(key);
-    return v ? JSON.parse(v) : fallback;
-  } catch { return fallback; }
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ARC São Lourenço do Douro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#0e3a1c;font-family:'Source Sans 3',sans-serif;}
+    input,select,textarea,button{font-family:'Source Sans 3',sans-serif;}
+    ::-webkit-scrollbar{width:6px;}
+    ::-webkit-scrollbar-track{background:#f1f1f1;}
+    ::-webkit-scrollbar-thumb{background:#1a5c2e;border-radius:3px;}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const C={green:"#1a5c2e",greenDark:"#0e3a1c",greenMid:"#236b36",greenLight:"#2e8444",greenPale:"#e6f2ea",greenFade:"#d0e8d7",gold:"#c8a02a",goldLight:"#e2b83a",goldPale:"#fdf6e0",cream:"#f8f5ef",white:"#ffffff",dark:"#0c1f12",gray:"#6b8672",grayLight:"#e0ebe3",grayMid:"#b4cabb",red:"#b32b2b",redPale:"#fceaea",blue:"#1a4f7a",bluePale:"#e3eef8",orange:"#b85c18",orangePale:"#fdf0e6"};
+function lsGet(k,fb){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch{return fb;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+const POSITIONS=["GR","DD","DC","DE","MCD","MC","MCO","ED","EC","EE","AV"];
+const ESCALOES=["Sub-15","Sub-16","Sub-17","Sub-18","Seniores"];
+const BLOOD_TYPES=["A+","A-","B+","B-","AB+","AB-","O+","O-"];
+const fmtDate=d=>{if(!d)return"";const[y,m,day]=d.split("-");return`${day}/${m}/${y}`;};
+const today=()=>new Date().toISOString().slice(0,10);
+const nextId=arr=>arr.length?Math.max(...arr.map(x=>x.id))+1:1;
+const IS={width:"100%",boxSizing:"border-box",border:`1.5px solid #e0ebe3`,borderRadius:8,padding:"8px 11px",fontSize:14,color:"#0c1f12",background:"#ffffff",outline:"none"};
+const BG={background:"linear-gradient(135deg,#0e3a1c,#1a5c2e)",color:"#fff",border:"1px solid rgba(200,160,42,0.2)",borderRadius:9,padding:"9px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:6,fontSize:13,fontWeight:"700",flexShrink:0};
+const BS={background:"#e0ebe3",color:"#0c1f12",border:"none",borderRadius:9,padding:"9px 16px",cursor:"pointer",fontSize:13};
+const BSm=bg=>({background:bg,color:"#fff",border:"none",borderRadius:7,padding:"4px 10px",cursor:"pointer",display:"flex",alignItems:"center",gap:3,fontSize:12,flexShrink:0});
+const SA=[
+  {id:1,name:"João Silva",position:"GR",age:17,escalao:"Sub-18",number:1,goals:0,assists:0,yellowCards:1,redCards:0,trainings:12,phone:"912000001",parentPhone:"912000002",parentName:"Carlos Silva",parentEmail:"carlos@email.pt",pin:"1111",parentPin:"1112"},
+  {id:2,name:"Rui Santos",position:"DD",age:16,escalao:"Sub-18",number:2,goals:2,assists:3,yellowCards:2,redCards:0,trainings:14,phone:"912000003",parentPhone:"912000004",parentName:"Ana Santos",parentEmail:"ana@email.pt",pin:"2222",parentPin:"2223"},
+  {id:3,name:"Pedro Matos",position:"DC",age:17,escalao:"Sub-18",number:5,goals:1,assists:0,yellowCards:0,redCards:0,trainings:15,phone:"912000005",parentPhone:"912000006",parentName:"Luísa Matos",parentEmail:"luisa@email.pt",pin:"3333",parentPin:"3334"},
+  {id:4,name:"Tiago Costa",position:"DC",age:15,escalao:"Sub-17",number:4,goals:0,assists:1,yellowCards:1,redCards:1,trainings:10,phone:"912000007",parentPhone:"912000008",parentName:"Mário Costa",parentEmail:"mario@email.pt",pin:"4444",parentPin:"4445"},
+  {id:5,name:"André Lopes",position:"MC",age:16,escalao:"Sub-17",number:8,goals:4,assists:5,yellowCards:0,redCards:0,trainings:16,phone:"912000009",parentPhone:"912000010",parentName:"Sofia Lopes",parentEmail:"sofia@email.pt",pin:"5555",parentPin:"5556"},
+  {id:6,name:"Miguel Ferreira",position:"MC",age:17,escalao:"Sub-18",number:6,goals:3,assists:7,yellowCards:3,redCards:0,trainings:13,phone:"912000011",parentPhone:"912000012",parentName:"João Ferreira",parentEmail:"jferreira@email.pt",pin:"6666",parentPin:"6667"},
+  {id:7,name:"Luís Oliveira",position:"AV",age:16,escalao:"Sub-17",number:11,goals:8,assists:2,yellowCards:1,redCards:0,trainings:15,phone:"912000013",parentPhone:"912000014",parentName:"Teresa Oliveira",parentEmail:"teresa@email.pt",pin:"7777",parentPin:"7778"},
+  {id:8,name:"Diogo Nunes",position:"AV",age:17,escalao:"Sub-18",number:9,goals:11,assists:3,yellowCards:2,redCards:0,trainings:14,phone:"912000015",parentPhone:"912000016",parentName:"Paulo Nunes",parentEmail:"paulo@email.pt",pin:"8888",parentPin:"8889"},
+];
+const ST=[{id:1,date:"2026-05-20",title:"Treino Físico + Tática",duration:90,escalao:"Sub-18",description:"Aquecimento, resistência, organização defensiva 4-3-3",objectives:"Melhorar cobertura defensiva",attendees:[1,2,3,5,6,8]},{id:2,date:"2026-05-22",title:"Finalização e Bolas Paradas",duration:75,escalao:"Sub-17",description:"Trabalho de finalização, livre direto e penálti",objectives:"Aumentar eficácia ofensiva",attendees:[4,5,7]},{id:3,date:"2026-05-27",title:"Jogo Treino",duration:60,escalao:"Sub-18",description:"Jogo interno Sub-18 vs Sub-17",objectives:"Aplicar sistema 4-3-3",attendees:[1,2,3,5,6,7,8]}];
+const SG=[{id:1,date:"2026-05-31",time:"15:00",opponent:"SC Penafiel B",local:true,escalao:"Sub-18",competition:"Distrital Porto",result:"",squad:[1,2,3,5,6,7,8],notes:"Jogo em casa — Campo Municipal"},{id:2,date:"2026-06-07",time:"10:30",opponent:"FC Castelo de Paiva",local:false,escalao:"Sub-17",competition:"Distrital Aveiro",result:"2-1",squad:[4,5,7],notes:"Deslocação — partida às 09:00"}];
+const SC=[{id:1,date:"2026-05-31",title:"Jogo Sub-18 vs SC Penafiel B",type:"jogo",escalao:"Sub-18",location:"Campo Municipal SLD"},{id:2,date:"2026-06-07",title:"Jogo Sub-17 em Castelo de Paiva",type:"jogo",escalao:"Sub-17",location:"Castelo de Paiva"},{id:3,date:"2026-06-15",title:"Reunião de Pais",type:"reuniao",escalao:"Todos",location:"Sede do Clube"},{id:4,date:"2026-06-21",title:"Festa de Fim de Época",type:"evento",escalao:"Todos",location:"Campo Municipal SLD"}];
+const SM=[{id:1,from:"Treinador",escalao:"Todos",text:"Treino amanhã às 18h. Trazer equipamento completo.",date:"2026-05-26",type:"aviso"},{id:2,from:"Treinador",escalao:"Sub-18",text:"Convocatória para jogo de sábado publicada. Confirmem presença.",date:"2026-05-25",type:"convocatoria"}];
+const SP=[{id:1,parentName:"Ana Santos",athleteId:2,text:"O Rui não pode treinar na quinta — tem consulta médica.",date:"2026-05-26",read:false},{id:2,parentName:"Mário Costa",athleteId:4,text:"O Tiago está com dores no joelho. Pode fazer treino ligeiro?",date:"2026-05-25",read:false}];
+const SF=[{id:1,question:"Que equipamento devo trazer?",answer:"Chuteiras, meias, calções e camisola do clube. Em dias de chuva, agasalho e botas."},{id:2,question:"Como justificar uma falta?",answer:"Contacte o treinador pelo telemóvel até 2 horas antes do treino."},{id:3,question:"Quais os horários de treino?",answer:"Sub-17 e Sub-18: terça e quinta das 18h às 19h30. Jogos ao fim de semana conforme calendário."}];function ClubCrest({size=48}){
+  return React.createElement("svg",{width:size,height:size,viewBox:"0 0 100 120",fill:"none"},
+    React.createElement("path",{d:"M50 4 L92 18 L92 62 C92 88 50 116 50 116 C50 116 8 88 8 62 L8 18 Z",fill:"#1a5c2e",stroke:"#c8a02a",strokeWidth:"3"}),
+    React.createElement("path",{d:"M50 11 L85 23 L85 62 C85 84 50 108 50 108 C50 108 15 84 15 62 L15 23 Z",fill:"none",stroke:"#c8a02a",strokeWidth:"1.5"}),
+    React.createElement("rect",{x:"46",y:"16",width:"8",height:"34",rx:"1",fill:"#c8a02a"}),
+    React.createElement("rect",{x:"32",y:"26",width:"36",height:"8",rx:"1",fill:"#c8a02a"}),
+    React.createElement("circle",{cx:"50",cy:"72",r:"16",fill:"#ffffff",stroke:"#c8a02a",strokeWidth:"1.5"}),
+    React.createElement("path",{d:"M50 56 L50 88 M34 72 L66 72",stroke:"#1a5c2e",strokeWidth:"1.2"}),
+    [-24,-12,0,12,24].map((x,i)=>React.createElement("polygon",{key:i,points:`${50+x},46 ${51.2+x},49.6 ${55+x},49.6 ${52+x},51.8 ${53.2+x},55.4 ${50+x},53.2 ${46.8+x},55.4 ${48+x},51.8 ${45+x},49.6 ${48.8+x},49.6`,fill:"#c8a02a"})),
+    React.createElement("text",{x:"50",y:"100",textAnchor:"middle",fontSize:"7",fill:"#c8a02a",fontWeight:"bold"},"1976")
+  );
 }
-export function lsSet(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+const {useState,useEffect}=React;
+function Pill({label,active,onClick}){return React.createElement("button",{onClick,style:{background:active?"linear-gradient(135deg,#0e3a1c,#1a5c2e)":"#e0ebe3",color:active?"#fff":"#0c1f12",border:`1px solid ${active?"#1a5c2e":"#e0ebe3"}`,borderRadius:20,padding:"4px 12px",cursor:"pointer",fontSize:12,fontWeight:active?"700":"400"}},label);}
+function SH({title,action,al}){return React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}},React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6}},React.createElement("div",{style:{width:3,height:14,background:"#c8a02a",borderRadius:2}}),React.createElement("div",{style:{fontSize:11,letterSpacing:"2px",textTransform:"uppercase",color:"#6b8672",fontWeight:"700"}},title)),action&&React.createElement("button",{onClick:action,style:{background:"none",border:"none",cursor:"pointer",color:"#1a5c2e",fontSize:12,textDecoration:"underline"}},al));}
+function Modal({title,onClose,onSave,children}){return React.createElement("div",{style:{position:"fixed",inset:0,background:"rgba(0,0,0,0.65)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:16}},React.createElement("div",{style:{background:"#fff",borderRadius:18,width:"100%",maxWidth:520,maxHeight:"90vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,0.4)"}},React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 20px",borderBottom:"2px solid #e6f2ea",position:"sticky",top:0,background:"#fff"}},React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8}},React.createElement("div",{style:{width:4,height:20,background:"#c8a02a",borderRadius:2}}),React.createElement("div",{style:{fontWeight:"700",fontSize:16,color:"#0e3a1c",fontFamily:"'Playfair Display',serif"}},title)),React.createElement("button",{onClick:onClose,style:{background:"none",border:"none",cursor:"pointer",color:"#6b8672",fontSize:22}},"×")),React.createElement("div",{style:{padding:"16px 20px",display:"flex",flexDirection:"column",gap:10}},children),onSave&&React.createElement("div",{style:{padding:"12px 20px",borderTop:"1px solid #e6f2ea",display:"flex",gap:8,justifyContent:"flex-end",position:"sticky",bottom:0,background:"#fff"}},React.createElement("button",{onClick:onClose,style:BS},"Cancelar"),React.createElement("button",{onClick:onSave,style:BG},"✓ Guardar"))));}
+function Header({subtitle,tabs,activeTab,setTab,onLogout,userName}){return React.createElement("header",{style:{background:"linear-gradient(160deg,#0e3a1c,#1a5c2e)",borderBottom:"3px solid #c8a02a",position:"sticky",top:0,zIndex:100,boxShadow:"0 4px 20px rgba(0,0,0,0.4)"}},React.createElement("div",{style:{height:3,background:"linear-gradient(90deg,#c8a02a,#e2b83a,#c8a02a)"}}),React.createElement("div",{style:{maxWidth:1100,margin:"0 auto",padding:"0 16px",display:"flex",alignItems:"center",justifyContent:"space-between",height:60}},React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10}},React.createElement("div",{style:{filter:"drop-shadow(0 2px 6px rgba(0,0,0,0.4))"}},React.createElement(ClubCrest,{size:42})),React.createElement("div",null,React.createElement("div",{style:{fontWeight:"700",fontSize:14,color:"#fff",fontFamily:"'Playfair Display',serif"}},"A.R.C.S. Lourenço do Douro"),React.createElement("div",{style:{fontSize:9,color:"#e2b83a",letterSpacing:"2px",textTransform:"uppercase"}},subtitle))),React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8}},userName&&React.createElement("span",{style:{color:"#e2b83a",fontSize:12}},`👋 ${userName}`),React.createElement("button",{onClick:onLogout,style:{background:"rgba(255,255,255,0.1)",color:"#fff",border:"1px solid rgba(255,255,255,0.2)",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontSize:11}},"Sair"))),tabs&&React.createElement("nav",{style:{maxWidth:1100,margin:"0 auto",padding:"0 16px 8px",display:"flex",gap:2,flexWrap:"wrap"}},tabs.map(t=>React.createElement("button",{key:t.id,onClick:()=>setTab(t.id),style:{background:activeTab===t.id?"#c8a02a":"transparent",color:activeTab===t.id?"#0e3a1c":"#fff",border:"none",borderRadius:8,padding:"5px 9px",cursor:"pointer",fontSize:10,letterSpacing:"0.5px",textTransform:"uppercase",fontWeight:activeTab===t.id?"700":"400",position:"relative",display:"flex",flexDirection:"column",alignItems:"center",gap:2}},t.icon&&React.createElement("span",null,t.icon),React.createElement("span",null,t.label),t.badge>0&&React.createElement("span",{style:{position:"absolute",top:2,right:2,background:"#b32b2b",color:"#fff",borderRadius:"50%",width:14,height:14,fontSize:8,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"bold"}},t.badge)))),React.createElement("div",{style:{height:2,background:"linear-gradient(90deg,transparent,#c8a02a,transparent)"}}));}
+function Login({onLogin}){
+  const [role,setRole]=useState(null);const [name,setName]=useState("");const [pin,setPin]=useState("");const [error,setError]=useState("");const [show,setShow]=useState(false);
+  const athletes=lsGet("arc-athletes",SA);
+  const roles=[{id:"treinador",label:"Treinador",icon:"🎽",desc:"Acesso total à plataforma"},{id:"pai",label:"Encarregado",icon:"👨‍👩‍👦",desc:"Zona de comunicação com o clube"},{id:"atleta",label:"Atleta",icon:"⚽",desc:"Os meus dados e convocatórias"}];
+  function tryLogin(){setError("");if(role==="treinador"){const stored=lsGet("arc-coach-pass","treinador2526");if(pin===stored)onLogin({role:"treinador",name:"Treinador"});else setError("Palavra-passe incorreta.");return;}const a=athletes.find(x=>x.id===parseInt(name));if(!a){setError("Seleciona um nome.");return;}if(role==="atleta"){if(pin===(a.pin||"1234"))onLogin({role:"atleta",athleteId:a.id,name:a.name});else setError("PIN incorreto.");}else{const pp=a.parentPin||a.parentPhone?.slice(-4)||"0000";if(pin===pp)onLogin({role:"pai",athleteId:a.id,name:a.parentName||"Encarregado"});else setError("PIN incorreto.");}}
+  return React.createElement("div",{style:{minHeight:"100vh",background:"linear-gradient(160deg,#0e3a1c,#1a5c2e)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}},
+    React.createElement("div",{style:{width:"100%",maxWidth:420}},
+      React.createElement("div",{style:{textAlign:"center",marginBottom:28}},React.createElement("div",{style:{display:"flex",justifyContent:"center",marginBottom:14,filter:"drop-shadow(0 4px 12px rgba(0,0,0,0.4))"}},React.createElement(ClubCrest,{size:80})),React.createElement("h1",{style:{margin:0,fontFamily:"'Playfair Display',serif",fontSize:24,color:"#fff"}},"A.R.C.S. Lourenço do Douro"),React.createElement("p",{style:{margin:"6px 0 0",color:"#e2b83a",fontSize:11,letterSpacing:"3px",textTransform:"uppercase"}},"Dossier do Treinador · 2025/26")),
+      React.createElement("div",{style:{background:"#fff",borderRadius:20,padding:28,boxShadow:"0 20px 60px rgba(0,0,0,0.4)"}},
+        !role?React.createElement("div",null,React.createElement("p",{style:{margin:"0 0 16px",fontSize:14,color:"#6b8672",textAlign:"center"}},"Quem és?"),roles.map(r=>React.createElement("button",{key:r.id,onClick:()=>{setRole(r.id);setPin("");setError("");},style:{background:"#e6f2ea",border:"2px solid #e0ebe3",borderRadius:12,padding:"14px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:14,textAlign:"left",width:"100%",marginBottom:8}},React.createElement("span",{style:{fontSize:28}},r.icon),React.createElement("div",null,React.createElement("div",{style:{fontWeight:"700",fontSize:15,color:"#0e3a1c"}},r.label),React.createElement("div",{style:{fontSize:12,color:"#6b8672",marginTop:1}},r.desc)),React.createElement("span",{style:{marginLeft:"auto",color:"#b4cabb",fontSize:18}},"›")))):
+        React.createElement("div",null,
+          React.createElement("button",{onClick:()=>{setRole(null);setPin("");setName("");setError("");},style:{background:"none",border:"none",cursor:"pointer",color:"#6b8672",fontSize:13,marginBottom:16,display:"flex",alignItems:"center",gap:4,padding:0}},"← Voltar"),
+          React.createElement("div",{style:{textAlign:"center",marginBottom:20}},React.createElement("div",{style:{fontSize:36,marginBottom:6}},roles.find(r=>r.id===role)?.icon),React.createElement("div",{style:{fontWeight:"700",fontSize:18,color:"#0e3a1c",fontFamily:"'Playfair Display',serif"}},roles.find(r=>r.id===role)?.label)),
+          React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:12}},
+            (role==="atleta"||role==="pai")&&React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},role==="atleta"?"Seleciona o teu nome":"Seleciona o teu educando"),React.createElement("select",{style:IS,value:name,onChange:e=>setName(e.target.value)},React.createElement("option",{value:""},"-- Escolhe --"),athletes.map(a=>React.createElement("option",{key:a.id,value:a.id},`${a.name} (${a.escalao})`)))),
+            React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},role==="treinador"?"Palavra-passe":"PIN (4 dígitos)"),React.createElement("div",{style:{position:"relative"}},React.createElement("input",{style:{...IS,paddingRight:40},type:show?"text":"password",value:pin,onChange:e=>setPin(e.target.value),onKeyDown:e=>e.key==="Enter"&&tryLogin(),placeholder:role==="treinador"?"Palavra-passe...":"Ex: 1234",maxLength:role==="treinador"?30:4}),React.createElement("button",{onClick:()=>setShow(!show),style:{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"#6b8672",fontSize:16}},show?"🙈":"👁"))),
+            error&&React.createElement("div",{style:{background:"#fceaea",color:"#b32b2b",borderRadius:8,padding:"8px 12px",fontSize:13}},`⚠️ ${error}`),
+            React.createElement("button",{onClick:tryLogin,style:{background:"linear-gradient(135deg,#0e3a1c,#1a5c2e)",color:"#fff",border:"none",borderRadius:10,padding:12,cursor:"pointer",fontSize:15,fontWeight:"700",width:"100%"}},"Entrar →"),
+            React.createElement("p",{style:{margin:0,fontSize:11,color:"#6b8672",textAlign:"center",lineHeight:1.5}},role==="treinador"?"Palavra-passe padrão: treinador2526":role==="atleta"?"PIN padrão definido pelo treinador na ficha do atleta.":"PIN do encarregado definido pelo treinador na ficha do atleta.")
+          )
+        )
+      )
+    )
+  );
+}function CoachDashboard({data,upd,onLogout}){
+  const [tab,setTab]=useState("home");
+  const {athletes,medical,trainings,games,calEvents,messages,parentMsgs,faqs}=data;
+  const unread=parentMsgs.filter(m=>!m.read).length;
+  const tabs=[{id:"home",icon:"🏠",label:"Início"},{id:"athletes",icon:"👥",label:"Plantel"},{id:"trainings",icon:"📋",label:"Treinos"},{id:"stats",icon:"📊",label:"Stats"},{id:"games",icon:"🏆",label:"Jogos"},{id:"calendar",icon:"📅",label:"Agenda"},{id:"medical",icon:"🏥",label:"Saúde"},{id:"parents",icon:"👨‍👩‍👦",label:"Pais",badge:unread},{id:"messages",icon:"📢",label:"Avisos"},{id:"settings",icon:"⚙️",label:"Config"}];
+  return React.createElement("div",{style:{minHeight:"100vh",background:"#f8f5ef"}},
+    React.createElement(Header,{subtitle:"Dossier do Treinador · 2025/26",tabs,activeTab:tab,setTab,onLogout}),
+    React.createElement("main",{style:{maxWidth:1100,margin:"0 auto",padding:"20px 16px"}},
+      tab==="home"&&React.createElement(CoachHome,{data,setTab}),
+      tab==="athletes"&&React.createElement(AthletesTab,{athletes,upd:v=>upd("athletes",v)}),
+      tab==="trainings"&&React.createElement(TrainingsTab,{trainings,athletes,upd:v=>upd("trainings",v)}),
+      tab==="stats"&&React.createElement(StatsTab,{athletes,trainings}),
+      tab==="games"&&React.createElement(GamesTab,{games,athletes,upd:v=>upd("games",v)}),
+      tab==="calendar"&&React.createElement(CalendarTab,{calEvents,upd:v=>upd("calEvents",v)}),
+      tab==="medical"&&React.createElement(MedicalTab,{athletes,medical,upd:v=>upd("medical",v)}),
+      tab==="parents"&&React.createElement(ParentsTab,{data,upd}),
+      tab==="messages"&&React.createElement(MessagesTab,{messages,upd:v=>upd("messages",v)}),
+      tab==="settings"&&React.createElement(SettingsTab,{athletes})
+    )
+  );
 }
-
-// ─── Seed data ────────────────────────────────────────────────────────────────
-export const SEED_ATHLETES = [
-  {id:1,name:"João Silva",position:"GR",age:17,escalao:"Sub-18",number:1,goals:0,assists:0,yellowCards:1,redCards:0,trainings:12,phone:"912000001",parentPhone:"912000002",parentName:"Carlos Silva",parentEmail:"carlos@email.pt",pin:"1111"},
-  {id:2,name:"Rui Santos",position:"DD",age:16,escalao:"Sub-18",number:2,goals:2,assists:3,yellowCards:2,redCards:0,trainings:14,phone:"912000003",parentPhone:"912000004",parentName:"Ana Santos",parentEmail:"ana@email.pt",pin:"2222"},
-  {id:3,name:"Pedro Matos",position:"DC",age:17,escalao:"Sub-18",number:5,goals:1,assists:0,yellowCards:0,redCards:0,trainings:15,phone:"912000005",parentPhone:"912000006",parentName:"Luísa Matos",parentEmail:"luisa@email.pt",pin:"3333"},
-  {id:4,name:"Tiago Costa",position:"DC",age:15,escalao:"Sub-17",number:4,goals:0,assists:1,yellowCards:1,redCards:1,trainings:10,phone:"912000007",parentPhone:"912000008",parentName:"Mário Costa",parentEmail:"mario@email.pt",pin:"4444"},
-  {id:5,name:"André Lopes",position:"MC",age:16,escalao:"Sub-17",number:8,goals:4,assists:5,yellowCards:0,redCards:0,trainings:16,phone:"912000009",parentPhone:"912000010",parentName:"Sofia Lopes",parentEmail:"sofia@email.pt",pin:"5555"},
-  {id:6,name:"Miguel Ferreira",position:"MC",age:17,escalao:"Sub-18",number:6,goals:3,assists:7,yellowCards:3,redCards:0,trainings:13,phone:"912000011",parentPhone:"912000012",parentName:"João Ferreira",parentEmail:"jferreira@email.pt",pin:"6666"},
-  {id:7,name:"Luís Oliveira",position:"AV",age:16,escalao:"Sub-17",number:11,goals:8,assists:2,yellowCards:1,redCards:0,trainings:15,phone:"912000013",parentPhone:"912000014",parentName:"Teresa Oliveira",parentEmail:"teresa@email.pt",pin:"7777"},
-  {id:8,name:"Diogo Nunes",position:"AV",age:17,escalao:"Sub-18",number:9,goals:11,assists:3,yellowCards:2,redCards:0,trainings:14,phone:"912000015",parentPhone:"912000016",parentName:"Paulo Nunes",parentEmail:"paulo@email.pt",pin:"8888"},
-];
-
-export const SEED_MEDICAL = {
-  1:{bloodType:"A+",allergies:"Nenhuma",conditions:"Nenhuma",insurance:"ADSE",insuranceNum:"12345",emergencyContact:"Carlos Silva",emergencyPhone:"912000002",notes:""},
-  2:{bloodType:"O+",allergies:"Penicilina",conditions:"Asma ligeira",insurance:"SNS",insuranceNum:"",emergencyContact:"Ana Santos",emergencyPhone:"912000004",notes:"Usa inalador antes do treino"},
-  3:{bloodType:"B+",allergies:"Nenhuma",conditions:"Nenhuma",insurance:"Médis",insuranceNum:"67890",emergencyContact:"Luísa Matos",emergencyPhone:"912000006",notes:""},
-};
-
-export const SEED_TRAININGS = [
-  {id:1,date:"2026-05-20",title:"Treino Físico + Tática",duration:90,escalao:"Sub-18",description:"Aquecimento, resistência, organização defensiva 4-3-3",objectives:"Melhorar cobertura defensiva",attendees:[1,2,3,5,6,8]},
-  {id:2,date:"2026-05-22",title:"Finalização e Bolas Paradas",duration:75,escalao:"Sub-17",description:"Trabalho de finalização, livre direto e penálti",objectives:"Aumentar eficácia ofensiva",attendees:[4,5,7]},
-  {id:3,date:"2026-05-27",title:"Jogo Treino",duration:60,escalao:"Sub-18",description:"Jogo interno Sub-18 vs Sub-17",objectives:"Aplicar sistema 4-3-3",attendees:[1,2,3,5,6,7,8]},
-];
-
-export const SEED_GAMES = [
-  {id:1,date:"2026-05-31",time:"15:00",opponent:"SC Penafiel B",local:true,escalao:"Sub-18",competition:"Distrital Porto",result:"",squad:[1,2,3,5,6,7,8],notes:"Jogo em casa — Campo Municipal"},
-  {id:2,date:"2026-06-07",time:"10:30",opponent:"FC Castelo de Paiva",local:false,escalao:"Sub-17",competition:"Distrital Aveiro",result:"2-1",squad:[4,5,7],notes:"Deslocação — partida às 09:00"},
-];
-
-export const SEED_CALENDAR = [
-  {id:1,date:"2026-05-31",title:"Jogo Sub-18 vs SC Penafiel B",type:"jogo",escalao:"Sub-18",location:"Campo Municipal SLD"},
-  {id:2,date:"2026-06-07",title:"Jogo Sub-17 em Castelo de Paiva",type:"jogo",escalao:"Sub-17",location:"Castelo de Paiva"},
-  {id:3,date:"2026-06-15",title:"Reunião de Pais",type:"reuniao",escalao:"Todos",location:"Sede do Clube"},
-  {id:4,date:"2026-06-21",title:"Festa de Fim de Época",type:"evento",escalao:"Todos",location:"Campo Municipal SLD"},
-];
-
-export const SEED_MESSAGES = [
-  {id:1,from:"Treinador",escalao:"Todos",text:"Treino amanhã às 18h. Trazer equipamento completo.",date:"2026-05-26",type:"aviso"},
-  {id:2,from:"Treinador",escalao:"Sub-18",text:"Convocatória para jogo de sábado publicada. Confirmem presença.",date:"2026-05-25",type:"convocatoria"},
-];
-
-export const SEED_PARENT_MSGS = [
-  {id:1,parentName:"Ana Santos",athleteId:2,text:"O Rui não pode treinar na quinta — tem consulta médica.",date:"2026-05-26",read:false},
-  {id:2,parentName:"Mário Costa",athleteId:4,text:"O Tiago está com dores no joelho. Pode fazer treino ligeiro?",date:"2026-05-25",read:false},
-];
-
-export const SEED_FAQS = [
-  {id:1,question:"Que equipamento devo trazer?",answer:"Chuteiras, meias, calções e camisola do clube. Em dias de chuva, agasalho e botas."},
-  {id:2,question:"Como faço para justificar uma falta?",answer:"Contacte o treinador pelo telemóvel até 2 horas antes do treino."},
-  {id:3,question:"Quais são os horários de treino?",answer:"Sub-17 e Sub-18: terça e quinta das 18h às 19h30. Jogo ao sábado ou domingo conforme calendário."},
-];
+function CoachHome({data,setTab}){
+  const {athletes,trainings,games,calEvents,messages,parentMsgs}=data;
+  const t=today();
+  const nextGame=[...games].sort((a,b)=>a.date.localeCompare(b.date)).find(g=>g.date>=t&&!g.result);
+  const nextEvent=[...calEvents].sort((a,b)=>a.date.localeCompare(b.date)).find(e=>e.date>=t);
+  const unread=parentMsgs.filter(m=>!m.read).length;
+  const kpis=[{l:"Atletas",v:athletes.length,bg:"#1a5c2e"},{l:"Treinos",v:trainings.length,bg:"#236b36"},{l:"Golos",v:athletes.reduce((s,a)=>s+a.goals,0),bg:"#c8a02a",dark:true},{l:"Jogos",v:games.length,bg:"#1a4f7a"},{l:"Msgs Pais",v:unread,bg:unread>0?"#b32b2b":"#6b8672"},{l:"Eventos",v:calEvents.filter(e=>e.date>=t).length,bg:"#2e8444"}];
+  return React.createElement("div",null,
+    React.createElement("div",{style:{background:"linear-gradient(135deg,#0e3a1c,#1a5c2e)",borderRadius:20,padding:28,color:"#fff",marginBottom:20,border:"2px solid #c8a02a",position:"relative",overflow:"hidden"}},
+      React.createElement("div",{style:{position:"absolute",right:16,top:"50%",transform:"translateY(-50%)",opacity:0.06}},React.createElement(ClubCrest,{size:160})),
+      React.createElement("div",{style:{fontSize:10,letterSpacing:"3px",textTransform:"uppercase",color:"#e2b83a",marginBottom:6}},"Bem-vindo"),
+      React.createElement("h2",{style:{margin:"0 0 4px",fontFamily:"'Playfair Display',serif",fontSize:24}},"A.R.C.S. Lourenço do Douro"),
+      React.createElement("p",{style:{margin:"0 0 18px",color:"#b4cabb",fontSize:12,letterSpacing:"1px"}},"FORMAÇÃO + AMBIÇÃO = FUTURO · Época 2025/26"),
+      React.createElement("div",{style:{display:"flex",gap:10,flexWrap:"wrap"}},
+        nextGame&&React.createElement("div",{style:{background:"rgba(200,160,42,0.15)",border:"1px solid #c8a02a",borderRadius:10,padding:"9px 14px",fontSize:12}},`🏆 Próx. jogo: ${nextGame.opponent} — ${fmtDate(nextGame.date)} ${nextGame.time}`),
+        nextEvent&&React.createElement("div",{style:{background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:10,padding:"9px 14px",fontSize:12}},`📅 ${nextEvent.title} — ${fmtDate(nextEvent.date)}`)
+      )
+    ),
+    React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:22}},kpis.map(k=>React.createElement("div",{key:k.l,style:{background:k.bg,borderRadius:14,padding:"16px 12px",color:k.dark?"#0e3a1c":"#fff",textAlign:"center"}},React.createElement("div",{style:{fontSize:26,fontWeight:"700",lineHeight:1}},k.v),React.createElement("div",{style:{fontSize:10,letterSpacing:"1.5px",textTransform:"uppercase",marginTop:3,opacity:0.85}},k.l)))),
+    React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}},
+      React.createElement("div",null,React.createElement(SH,{title:"Avisos Recentes",action:()=>setTab("messages"),al:"Ver todos"}),[...messages].reverse().slice(0,3).map(m=>React.createElement("div",{key:m.id,style:{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,fontSize:13,borderLeft:"3px solid #1a5c2e",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}},React.createElement("div",{style:{lineHeight:1.5}},m.text.slice(0,80)),React.createElement("div",{style:{fontSize:10,color:"#6b8672",marginTop:3}},fmtDate(m.date))))),
+      React.createElement("div",null,React.createElement(SH,{title:"Mensagens dos Pais",action:()=>setTab("parents"),al:unread>0?`${unread} não lidas`:"Ver"}),parentMsgs.slice(-3).reverse().map(m=>React.createElement("div",{key:m.id,style:{background:m.read?"#fff":"#fdf6e0",borderRadius:10,padding:"10px 13px",border:`1.5px solid ${m.read?"#e0ebe3":"#c8a02a"}`,fontSize:13,marginBottom:8}},React.createElement("strong",null,m.parentName),!m.read&&React.createElement("span",{style:{background:"#c8a02a",color:"#0e3a1c",borderRadius:4,padding:"1px 5px",fontSize:9,marginLeft:5,fontWeight:"bold"}},"NOVA"),React.createElement("div",{style:{color:"#0c1f12",opacity:0.8,marginTop:2}},m.text.slice(0,60)+"…"))))
+    )
+  );
+}
+function AthletesTab({athletes,upd}){
+  const [filter,setFilter]=useState("Todos");const [modal,setModal]=useState(null);const [form,setForm]=useState({});const [search,setSearch]=useState("");
+  let list=filter==="Todos"?athletes:athletes.filter(a=>a.escalao===filter);
+  if(search)list=list.filter(a=>a.name.toLowerCase().includes(search.toLowerCase()));
+  const openAdd=()=>{setForm({name:"",position:"MC",age:"",escalao:"Sub-18",number:"",goals:0,assists:0,yellowCards:0,redCards:0,trainings:0,phone:"",parentPhone:"",parentName:"",parentEmail:"",pin:"1234",parentPin:"1234"});setModal("add");};
+  const openEdit=a=>{setForm({...a});setModal("edit");};
+  const doSave=()=>{if(!form.name)return;const a={...form,id:form.id||nextId(athletes),age:+form.age,goals:+form.goals,assists:+form.assists,yellowCards:+form.yellowCards,redCards:+form.redCards,trainings:+form.trainings,number:+form.number};modal==="add"?upd([...athletes,a]):upd(athletes.map(x=>x.id===a.id?a:x));setModal(null);};
+  const doDel=id=>{if(window.confirm("Remover atleta?"))upd(athletes.filter(a=>a.id!==id));};
+  const Fld=({label,children})=>React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},label),children);
+  return React.createElement("div",null,
+    React.createElement("div",{style:{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap",alignItems:"center"}},
+      React.createElement("input",{style:{...IS,flex:1,minWidth:150},placeholder:"🔍 Pesquisar...",value:search,onChange:e=>setSearch(e.target.value)}),
+      React.createElement("div",{style:{display:"flex",gap:4,flexWrap:"wrap"}},["Todos",...ESCALOES.filter(e=>athletes.some(a=>a.escalao===e))].map(e=>React.createElement(Pill,{key:e,label:e,active:filter===e,onClick:()=>setFilter(e)}))),
+      React.createElement("button",{onClick:openAdd,style:BG},"+ Adicionar")
+    ),
+    React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(250px,1fr))",gap:12}},
+      list.map(a=>React.createElement("div",{key:a.id,style:{background:"#fff",borderRadius:14,padding:16,boxShadow:"0 1px 8px rgba(0,0,0,0.07)",border:"1px solid #e0ebe3"}},
+        React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}},
+          React.createElement("div",null,React.createElement("div",{style:{display:"flex",alignItems:"center",gap:7}},a.number&&React.createElement("div",{style:{width:26,height:26,borderRadius:"50%",background:"linear-gradient(135deg,#0e3a1c,#1a5c2e)",border:"1.5px solid #c8a02a",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:"bold",color:"#c8a02a"}},a.number),React.createElement("span",{style:{fontWeight:"700",fontSize:14}},a.name)),React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginTop:2}},`${a.escalao} · ${a.age} anos`)),
+          React.createElement("span",{style:{background:"linear-gradient(135deg,#1a5c2e,#236b36)",color:"#c8a02a",borderRadius:8,padding:"2px 9px",fontSize:11,fontWeight:"bold"}},a.position)
+        ),
+        React.createElement("div",{style:{display:"flex",gap:5,marginBottom:10,flexWrap:"wrap"}},[["⚽",a.goals],["🅰️",a.assists],["🟨",a.yellowCards],["🟥",a.redCards],["🏃",a.trainings]].map(([l,v])=>React.createElement("span",{key:l,style:{background:"#e6f2ea",borderRadius:6,padding:"2px 7px",fontSize:11,color:"#0e3a1c"}},`${l} ${v}`))),
+        a.parentName&&React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginBottom:1}},`👨‍👩‍👦 ${a.parentName}`),
+        a.parentPhone&&React.createElement("div",{style:{fontSize:11,color:"#6b8672"}},`📱 ${a.parentPhone}`),
+        React.createElement("div",{style:{display:"flex",gap:6,marginTop:12}},React.createElement("button",{onClick:()=>openEdit(a),style:BSm("#236b36")},"✏️ Editar"),React.createElement("button",{onClick:()=>doDel(a.id),style:BSm("#b32b2b")},"🗑 Remover"))
+      ))
+    ),
+    modal&&React.createElement(Modal,{title:modal==="add"?"Novo Atleta":"Editar Atleta",onClose:()=>setModal(null),onSave:doSave},
+      React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}},
+        React.createElement("div",{style:{gridColumn:"1/-1"}},React.createElement(Fld,{label:"Nome Completo"},React.createElement("input",{style:IS,value:form.name||"",onChange:e=>setForm({...form,name:e.target.value})}))),
+        React.createElement(Fld,{label:"Posição"},React.createElement("select",{style:IS,value:form.position||"MC",onChange:e=>setForm({...form,position:e.target.value})},POSITIONS.map(p=>React.createElement("option",{key:p},p)))),
+        React.createElement(Fld,{label:"Escalão"},React.createElement("select",{style:IS,value:form.escalao||"Sub-18",onChange:e=>setForm({...form,escalao:e.target.value})},ESCALOES.map(e=>React.createElement("option",{key:e},e)))),
+        React.createElement(Fld,{label:"Idade"},React.createElement("input",{style:IS,type:"number",value:form.age||"",onChange:e=>setForm({...form,age:e.target.value})})),
+        React.createElement(Fld,{label:"Nº Camisola"},React.createElement("input",{style:IS,type:"number",value:form.number||"",onChange:e=>setForm({...form,number:e.target.value})})),
+        React.createElement(Fld,{label:"Golos"},React.createElement("input",{style:IS,type:"number",value:form.goals||0,onChange:e=>setForm({...form,goals:e.target.value})})),
+        React.createElement(Fld,{label:"Assistências"},React.createElement("input",{style:IS,type:"number",value:form.assists||0,onChange:e=>setForm({...form,assists:e.target.value})})),
+        React.createElement(Fld,{label:"Amarelos"},React.createElement("input",{style:IS,type:"number",value:form.yellowCards||0,onChange:e=>setForm({...form,yellowCards:e.target.value})})),
+        React.createElement(Fld,{label:"Vermelhos"},React.createElement("input",{style:IS,type:"number",value:form.redCards||0,onChange:e=>setForm({...form,redCards:e.target.value})})),
+        React.createElement(Fld,{label:"Presenças"},React.createElement("input",{style:IS,type:"number",value:form.trainings||0,onChange:e=>setForm({...form,trainings:e.target.value})})),
+        React.createElement(Fld,{label:"Tel. Atleta"},React.createElement("input",{style:IS,value:form.phone||"",onChange:e=>setForm({...form,phone:e.target.value})})),
+        React.createElement(Fld,{label:"PIN Atleta"},React.createElement("input",{style:IS,value:form.pin||"",onChange:e=>setForm({...form,pin:e.target.value}),maxLength:4})),
+        React.createElement("div",{style:{gridColumn:"1/-1",fontSize:10,color:"#6b8672",textTransform:"uppercase",letterSpacing:"1px",borderTop:"1px solid #e0ebe3",paddingTop:8,fontWeight:"bold"}},"Encarregado de Educação"),
+        React.createElement(Fld,{label:"Nome EE"},React.createElement("input",{style:IS,value:form.parentName||"",onChange:e=>setForm({...form,parentName:e.target.value})})),
+        React.createElement(Fld,{label:"Tel. EE"},React.createElement("input",{style:IS,value:form.parentPhone||"",onChange:e=>setForm({...form,parentPhone:e.target.value})})),
+        React.createElement("div",{style:{gridColumn:"1/-1"}},React.createElement(Fld,{label:"Email EE"},React.createElement("input",{style:IS,type:"email",value:form.parentEmail||"",onChange:e=>setForm({...form,parentEmail:e.target.value})}))),
+        React.createElement(Fld,{label:"PIN EE"},React.createElement("input",{style:IS,value:form.parentPin||"",onChange:e=>setForm({...form,parentPin:e.target.value}),maxLength:4}))
+      )
+    )
+  );
+}
+function TrainingsTab({trainings,athletes,upd}){
+  const [modal,setModal]=useState(false);const [form,setForm]=useState({});const [filter,setFilter]=useState("Todos");
+  let list=[...trainings].sort((a,b)=>b.date.localeCompare(a.date));
+  if(filter!=="Todos")list=list.filter(t=>t.escalao===filter);
+  const toggle=id=>setForm(f=>({...f,attendees:f.attendees.includes(id)?f.attendees.filter(x=>x!==id):[...f.attendees,id]}));
+  const doSave=()=>{if(!form.title)return;upd([...trainings,{...form,id:nextId(trainings)}]);setModal(false);};
+  return React.createElement("div",null,
+    React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,flexWrap:"wrap",gap:8}},
+      React.createElement("div",{style:{display:"flex",gap:4,flexWrap:"wrap"}},["Todos",...ESCALOES].map(e=>React.createElement(Pill,{key:e,label:e,active:filter===e,onClick:()=>setFilter(e)}))),
+      React.createElement("button",{onClick:()=>{setForm({date:today(),title:"",duration:90,escalao:"Sub-18",description:"",objectives:"",attendees:[]});setModal(true);},style:BG},"+ Novo Treino")
+    ),
+    React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:12}},
+      list.map(t=>{const att=athletes.filter(a=>t.attendees.includes(a.id));return React.createElement("div",{key:t.id,style:{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 8px rgba(0,0,0,0.07)",border:"1px solid #e0ebe3"}},React.createElement("div",{style:{background:"#e6f2ea",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}},React.createElement("div",null,React.createElement("div",{style:{fontWeight:"700",fontSize:15,color:"#0e3a1c"}},t.title),React.createElement("div",{style:{fontSize:12,color:"#6b8672",marginTop:2}},`${fmtDate(t.date)} · ${t.duration} min · ${t.escalao}`)),React.createElement("div",{style:{display:"flex",gap:6,alignItems:"center"}},React.createElement("span",{style:{background:"#1a5c2e",color:"#c8a02a",borderRadius:8,padding:"2px 10px",fontSize:11,fontWeight:"bold"}},`${att.length} presenças`),React.createElement("button",{onClick:()=>upd(trainings.filter(x=>x.id!==t.id)),style:BSm("#b32b2b")},"🗑"))),React.createElement("div",{style:{padding:"12px 16px"}},t.description&&React.createElement("div",{style:{fontSize:13,lineHeight:1.5,marginBottom:t.objectives?6:0}},t.description),t.objectives&&React.createElement("div",{style:{fontSize:12,color:"#1a4f7a",fontStyle:"italic"}},`🎯 ${t.objectives}`),att.length>0&&React.createElement("div",{style:{marginTop:10,display:"flex",flexWrap:"wrap",gap:4}},att.map(a=>React.createElement("span",{key:a.id,style:{background:"#e6f2ea",color:"#1a5c2e",borderRadius:6,padding:"2px 8px",fontSize:11}},a.name)))));})),
+    modal&&React.createElement(Modal,{title:"Novo Treino",onClose:()=>setModal(false),onSave:doSave},
+      React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Título"),React.createElement("input",{style:IS,value:form.title||"",onChange:e=>setForm({...form,title:e.target.value})}),
+      React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}},
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Data"),React.createElement("input",{style:IS,type:"date",value:form.date||"",onChange:e=>setForm({...form,date:e.target.value})})),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Duração (min)"),React.createElement("input",{style:IS,type:"number",value:form.duration||90,onChange:e=>setForm({...form,duration:+e.target.value})})),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Escalão"),React.createElement("select",{style:IS,value:form.escalao||"Sub-18",onChange:e=>setForm({...form,escalao:e.target.value})},ESCALOES.map(e=>React.createElement("option",{key:e},e))))
+      ),
+      React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Descrição"),React.createElement("textarea",{style:{...IS,minHeight:60,resize:"vertical"},value:form.description||"",onChange:e=>setForm({...form,description:e.target.value})}),
+      React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Objetivos"),React.createElement("input",{style:IS,value:form.objectives||"",onChange:e=>setForm({...form,objectives:e.target.value})}),
+      React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:6,fontWeight:"700"}},"Presenças"),
+      React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:5,maxHeight:120,overflowY:"auto"}},athletes.map(a=>{const on=form.attendees?.includes(a.id);return React.createElement("button",{key:a.id,onClick:()=>toggle(a.id),style:{border:`1.5px solid ${on?"#1a5c2e":"#e0ebe3"}`,background:on?"#1a5c2e":"transparent",color:on?"#fff":"#0c1f12",borderRadius:8,padding:"4px 10px",fontSize:12,cursor:"pointer"}},`${on?"✓ ":""}${a.name}`);}))
+    )
+  );
+}
+function StatsTab({athletes,trainings}){
+  const [sort,setSort]=useState("goals");const [esc,setEsc]=useState("Todos");
+  let list=esc==="Todos"?athletes:athletes.filter(a=>a.escalao===esc);
+  list=[...list].sort((a,b)=>b[sort]-a[sort]);
+  const total=trainings.length;
+  return React.createElement("div",null,
+    React.createElement("div",{style:{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap",justifyContent:"space-between"}},
+      React.createElement("div",{style:{display:"flex",gap:4,flexWrap:"wrap"}},["Todos",...ESCALOES.filter(e=>athletes.some(a=>a.escalao===e))].map(e=>React.createElement(Pill,{key:e,label:e,active:esc===e,onClick:()=>setEsc(e)}))),
+      React.createElement("div",{style:{display:"flex",gap:4,flexWrap:"wrap"}},[{k:"goals",l:"⚽ Golos"},{k:"assists",l:"🅰️ Assist."},{k:"yellowCards",l:"🟨 Cartões"},{k:"trainings",l:"🏃 Presenças"}].map(c=>React.createElement(Pill,{key:c.k,label:c.l,active:sort===c.k,onClick:()=>setSort(c.k)})))
+    ),
+    list.length>=3&&React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:"20px 16px",marginBottom:20,boxShadow:"0 1px 8px rgba(0,0,0,0.08)"}},
+      React.createElement("div",{style:{fontSize:10,letterSpacing:"2px",textTransform:"uppercase",color:"#6b8672",marginBottom:14,textAlign:"center"}},"TOP 3"),
+      React.createElement("div",{style:{display:"flex",gap:8,alignItems:"flex-end",justifyContent:"center",maxWidth:360,margin:"0 auto"}},
+        [1,0,2].map((rank,i)=>{const a=list[rank];if(!a)return null;const hs=[80,110,60];const bgs=["#6b8672","#c8a02a","#b85c18"];const medals=["🥈","🥇","🥉"];return React.createElement("div",{key:a.id,style:{flex:1,textAlign:"center"}},React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginBottom:4}},a.name),React.createElement("div",{style:{background:bgs[i],height:hs[i],borderRadius:"10px 10px 0 0",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",color:rank===0?"#0e3a1c":"#fff"}},React.createElement("div",{style:{fontSize:20}},medals[i]),React.createElement("div",{style:{fontSize:22,fontWeight:"bold"}},a[sort])));})
+      )
+    ),
+    React.createElement("div",{style:{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 8px rgba(0,0,0,0.07)"}},
+      React.createElement("table",{style:{width:"100%",borderCollapse:"collapse",fontSize:12}},
+        React.createElement("thead",null,React.createElement("tr",{style:{background:"linear-gradient(90deg,#0e3a1c,#1a5c2e)",color:"#fff"}},["#","Atleta","Pos","Esc","⚽","🅰️","🟨","🟥","🏃",total>0?"%":""].map((h,i)=>h&&React.createElement("th",{key:i,style:{padding:"10px 8px",textAlign:i<2?"left":"center",fontSize:11}},h)))),
+        React.createElement("tbody",null,list.map((a,i)=>React.createElement("tr",{key:a.id,style:{background:i%2===0?"#fff":"#e6f2ea"}},
+          React.createElement("td",{style:{padding:"9px 8px",textAlign:"center",fontWeight:"bold",color:i===0?"#c8a02a":"#6b8672"}},i+1),
+          React.createElement("td",{style:{padding:"9px 8px",fontWeight:"bold"}},a.name),
+          React.createElement("td",{style:{padding:"9px 8px",textAlign:"center"}},React.createElement("span",{style:{background:"#1a5c2e",color:"#c8a02a",borderRadius:5,padding:"1px 6px",fontSize:10,fontWeight:"bold"}},a.position)),
+          React.createElement("td",{style:{padding:"9px 8px",fontSize:10,color:"#6b8672",textAlign:"center"}},a.escalao),
+          React.createElement("td",{style:{padding:"9px 8px",textAlign:"center",fontWeight:sort==="goals"?"bold":"normal",color:sort==="goals"?"#1a5c2e":"#0c1f12"}},a.goals),
+          React.createElement("td",{style:{padding:"9px 8px",textAlign:"center"}},a.assists),
+          React.createElement("td",{style:{padding:"9px 8px",textAlign:"center",color:a.yellowCards>=3?"#b85c18":"#0c1f12"}},a.yellowCards),
+          React.createElement("td",{style:{padding:"9px 8px",textAlign:"center",color:a.redCards>0?"#b32b2b":"#0c1f12"}},a.redCards),
+          React.createElement("td",{style:{padding:"9px 8px",textAlign:"center"}},a.trainings),
+          total>0&&React.createElement("td",{style:{padding:"9px 8px",textAlign:"center",fontSize:11,color:"#6b8672"}},`${Math.round(a.trainings/total*100)}%`)
+        )))
+      )
+    )
+  );
+}function GamesTab({games,athletes,upd}){
+  const [modal,setModal]=useState(null);const [form,setForm]=useState({});const [expanded,setExpanded]=useState(null);
+  const t=today();
+  const upcoming=[...games].filter(g=>g.date>=t&&!g.result).sort((a,b)=>a.date.localeCompare(b.date));
+  const past=[...games].filter(g=>g.date<t||g.result).sort((a,b)=>b.date.localeCompare(a.date));
+  const toggle=id=>setForm(f=>({...f,squad:f.squad.includes(id)?f.squad.filter(x=>x!==id):[...f.squad,id]}));
+  const doSave=()=>{if(!form.opponent)return;const g={...form,id:form.id||nextId(games)};modal==="add"?upd([...games,g]):upd(games.map(x=>x.id===g.id?g:x));setModal(null);};
+  const GCard=({g})=>{
+    const squad=athletes.filter(a=>g.squad.includes(a.id));const exp=expanded===g.id;
+    return React.createElement("div",{style:{background:"#fff",borderRadius:14,overflow:"hidden",boxShadow:"0 1px 8px rgba(0,0,0,0.08)",border:"1px solid #e0ebe3",marginBottom:10}},
+      React.createElement("div",{style:{background:g.local?"#e6f2ea":"#e3eef8",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}},
+        React.createElement("div",null,React.createElement("div",{style:{fontWeight:"700",fontSize:15}},`${g.local?"🏠":"✈️"} vs ${g.opponent}`),React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginTop:1}},`${fmtDate(g.date)} ${g.time} · ${g.escalao} · ${g.competition}`)),
+        React.createElement("div",{style:{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}},
+          g.result&&React.createElement("span",{style:{background:"#1a5c2e",color:"#c8a02a",borderRadius:8,padding:"3px 12px",fontWeight:"bold",fontSize:14}},g.result),
+          React.createElement("button",{onClick:()=>setExpanded(exp?null:g.id),style:BSm("#1a4f7a")},`👁 ${exp?"Fechar":"Convocados"}`),
+          React.createElement("button",{onClick:()=>{setForm({...g});setModal("edit");},style:BSm("#236b36")},"✏️"),
+          React.createElement("button",{onClick:()=>{if(window.confirm("Remover?"))upd(games.filter(x=>x.id!==g.id));},style:BSm("#b32b2b")},"🗑")
+        )
+      ),
+      exp&&React.createElement("div",{style:{padding:"14px 16px"}},
+        g.notes&&React.createElement("div",{style:{fontSize:12,marginBottom:10,fontStyle:"italic",padding:"8px 12px",background:"#fdf6e0",borderRadius:8}},`📝 ${g.notes}`),
+        React.createElement("div",{style:{fontSize:10,letterSpacing:"1px",textTransform:"uppercase",color:"#6b8672",marginBottom:8,fontWeight:"bold"}},`Convocados (${squad.length})`),
+        React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:6}},squad.map(a=>React.createElement("span",{key:a.id,style:{background:"#e6f2ea",color:"#0e3a1c",borderRadius:8,padding:"4px 10px",fontSize:12}},`${a.number?`#${a.number} `:""}${a.name}`)))
+      )
+    );
+  };
+  return React.createElement("div",null,
+    React.createElement("div",{style:{display:"flex",justifyContent:"flex-end",marginBottom:14}},React.createElement("button",{onClick:()=>{setForm({date:today(),time:"15:00",opponent:"",local:true,escalao:"Sub-18",competition:"Distrital Porto",result:"",squad:[],notes:""});setModal("add");},style:BG},"+ Novo Jogo")),
+    upcoming.length>0&&React.createElement("div",null,React.createElement(SH,{title:"Próximos Jogos"}),upcoming.map(g=>React.createElement(GCard,{key:g.id,g}))),
+    past.length>0&&React.createElement("div",null,React.createElement(SH,{title:"Jogos Realizados"}),past.map(g=>React.createElement(GCard,{key:g.id,g}))),
+    modal&&React.createElement(Modal,{title:modal==="add"?"Novo Jogo":"Editar Jogo",onClose:()=>setModal(null),onSave:doSave},
+      React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Adversário"),React.createElement("input",{style:IS,value:form.opponent||"",onChange:e=>setForm({...form,opponent:e.target.value})}),
+      React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}},
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Data"),React.createElement("input",{style:IS,type:"date",value:form.date||"",onChange:e=>setForm({...form,date:e.target.value})})),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Hora"),React.createElement("input",{style:IS,type:"time",value:form.time||"",onChange:e=>setForm({...form,time:e.target.value})})),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Escalão"),React.createElement("select",{style:IS,value:form.escalao||"Sub-18",onChange:e=>setForm({...form,escalao:e.target.value})},ESCALOES.map(e=>React.createElement("option",{key:e},e)))),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Competição"),React.createElement("input",{style:IS,value:form.competition||"",onChange:e=>setForm({...form,competition:e.target.value})})),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Resultado"),React.createElement("input",{style:IS,value:form.result||"",onChange:e=>setForm({...form,result:e.target.value}),placeholder:"Ex: 2-1"})),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Local"),React.createElement("select",{style:IS,value:form.local?"casa":"fora",onChange:e=>setForm({...form,local:e.target.value==="casa"})},React.createElement("option",{value:"casa"},"🏠 Casa"),React.createElement("option",{value:"fora"},"✈️ Fora")))
+      ),
+      React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Notas"),React.createElement("textarea",{style:{...IS,minHeight:50,resize:"vertical"},value:form.notes||"",onChange:e=>setForm({...form,notes:e.target.value})}),
+      React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:6,fontWeight:"700"}},"Convocatória"),
+      React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:5,maxHeight:120,overflowY:"auto"}},athletes.map(a=>{const on=form.squad?.includes(a.id);return React.createElement("button",{key:a.id,onClick:()=>toggle(a.id),style:{border:`1.5px solid ${on?"#1a5c2e":"#e0ebe3"}`,background:on?"#1a5c2e":"transparent",color:on?"#fff":"#0c1f12",borderRadius:8,padding:"4px 10px",fontSize:12,cursor:"pointer"}},`${on?"✓ ":""}${a.name}`);}))
+    )
+  );
+}
+function CalendarTab({calEvents,upd}){
+  const [modal,setModal]=useState(false);const [form,setForm]=useState({});
+  const t=today();
+  const TI={jogo:"⚽",treino:"🏃",reuniao:"👥",evento:"🎉"};
+  const TC={jogo:"#1a5c2e",treino:"#1a4f7a",reuniao:"#b85c18",evento:"#c8a02a"};
+  const upcoming=[...calEvents].filter(e=>e.date>=t).sort((a,b)=>a.date.localeCompare(b.date));
+  const past=[...calEvents].filter(e=>e.date<t).sort((a,b)=>b.date.localeCompare(a.date));
+  const ECard=({e})=>React.createElement("div",{style:{background:"#fff",borderRadius:12,padding:"12px 16px",display:"flex",gap:12,alignItems:"flex-start",boxShadow:"0 1px 6px rgba(0,0,0,0.06)",border:"1px solid #e0ebe3",marginBottom:8}},React.createElement("div",{style:{background:TC[e.type]||"#6b8672",borderRadius:12,width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}},TI[e.type]||"📌"),React.createElement("div",{style:{flex:1}},React.createElement("div",{style:{fontWeight:"700",fontSize:14}},e.title),React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginTop:2}},`${fmtDate(e.date)} · ${e.escalao}`),e.location&&React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginTop:1}},`📍 ${e.location}`)),React.createElement("button",{onClick:()=>{if(window.confirm("Remover?"))upd(calEvents.filter(x=>x.id!==e.id));},style:BSm("#b32b2b")},"🗑"));
+  return React.createElement("div",null,
+    React.createElement("div",{style:{display:"flex",justifyContent:"flex-end",marginBottom:14}},React.createElement("button",{onClick:()=>{setForm({date:today(),title:"",type:"evento",escalao:"Todos",location:""});setModal(true);},style:BG},"+ Novo Evento")),
+    upcoming.length>0&&React.createElement("div",null,React.createElement(SH,{title:"Próximos Eventos"}),upcoming.map(e=>React.createElement(ECard,{key:e.id,e}))),
+    past.length>0&&React.createElement("div",null,React.createElement(SH,{title:"Passados"}),past.map(e=>React.createElement(ECard,{key:e.id,e}))),
+    modal&&React.createElement(Modal,{title:"Novo Evento",onClose:()=>setModal(false),onSave:()=>{if(!form.title)return;upd([...calEvents,{...form,id:nextId(calEvents)}]);setModal(false);}},
+      React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Título"),React.createElement("input",{style:IS,value:form.title||"",onChange:e=>setForm({...form,title:e.target.value})}),
+      React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}},
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Data"),React.createElement("input",{style:IS,type:"date",value:form.date||"",onChange:e=>setForm({...form,date:e.target.value})})),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Tipo"),React.createElement("select",{style:IS,value:form.type||"evento",onChange:e=>setForm({...form,type:e.target.value})},React.createElement("option",{value:"jogo"},"⚽ Jogo"),React.createElement("option",{value:"treino"},"🏃 Treino"),React.createElement("option",{value:"reuniao"},"👥 Reunião"),React.createElement("option",{value:"evento"},"🎉 Evento"))),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Escalão"),React.createElement("select",{style:IS,value:form.escalao||"Todos",onChange:e=>setForm({...form,escalao:e.target.value})},React.createElement("option",null,"Todos"),...ESCALOES.map(e=>React.createElement("option",{key:e},e)))),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Local"),React.createElement("input",{style:IS,value:form.location||"",onChange:e=>setForm({...form,location:e.target.value})}))
+      )
+    )
+  );
+}
+function MedicalTab({athletes,medical,upd}){
+  const [sel,setSel]=useState(null);const [editing,setEditing]=useState(false);const [form,setForm]=useState({});
+  const rec=medical[sel]||{bloodType:"",allergies:"",conditions:"",insurance:"",insuranceNum:"",emergencyContact:"",emergencyPhone:"",notes:""};
+  const a=athletes.find(x=>x.id===sel);
+  return React.createElement("div",{style:{display:"grid",gridTemplateColumns:"200px 1fr",gap:16}},
+    React.createElement("div",null,
+      React.createElement("div",{style:{fontSize:10,letterSpacing:"2px",textTransform:"uppercase",color:"#6b8672",marginBottom:8,fontWeight:"bold"}},"Atletas"),
+      athletes.map(x=>React.createElement("button",{key:x.id,onClick:()=>{setSel(x.id);setEditing(false);},style:{background:sel===x.id?"linear-gradient(135deg,#0e3a1c,#1a5c2e)":"#fff",color:sel===x.id?"#fff":"#0c1f12",border:`1.5px solid ${sel===x.id?"#1a5c2e":"#e0ebe3"}`,borderRadius:10,padding:"9px 12px",cursor:"pointer",width:"100%",textAlign:"left",display:"flex",justifyContent:"space-between",marginBottom:4,fontSize:13}},React.createElement("span",{style:{fontWeight:sel===x.id?"700":"400"}},x.name),React.createElement("span",{style:{fontSize:10,opacity:0.7}},x.escalao)))
+    ),
+    React.createElement("div",null,
+      !sel?React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:40,textAlign:"center",color:"#6b8672"}},React.createElement("div",{style:{fontSize:44,marginBottom:10}},"🏥"),React.createElement("div",null,"Seleciona um atleta")):
+      React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 1px 8px rgba(0,0,0,0.07)"}},
+        React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18,paddingBottom:14,borderBottom:"2px solid #e6f2ea"}},
+          React.createElement("div",{style:{fontWeight:"700",fontSize:17,fontFamily:"'Playfair Display',serif"}},a?.name),
+          !editing&&React.createElement("button",{onClick:()=>{setForm({...rec});setEditing(true);},style:BG},"✏️ Editar")
+        ),
+        editing?React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}},
+          React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Grupo Sanguíneo"),React.createElement("select",{style:IS,value:form.bloodType||"",onChange:e=>setForm({...form,bloodType:e.target.value})},React.createElement("option",{value:""},"--"),...BLOOD_TYPES.map(b=>React.createElement("option",{key:b},b)))),
+          React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Seguro"),React.createElement("input",{style:IS,value:form.insurance||"",onChange:e=>setForm({...form,insurance:e.target.value})})),
+          React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Nº Apólice"),React.createElement("input",{style:IS,value:form.insuranceNum||"",onChange:e=>setForm({...form,insuranceNum:e.target.value})})),
+          React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Contato Emergência"),React.createElement("input",{style:IS,value:form.emergencyContact||"",onChange:e=>setForm({...form,emergencyContact:e.target.value})})),
+          React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Tel. Emergência"),React.createElement("input",{style:IS,value:form.emergencyPhone||"",onChange:e=>setForm({...form,emergencyPhone:e.target.value})})),
+          React.createElement("div",{style:{gridColumn:"1/-1"}},React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Alergias"),React.createElement("textarea",{style:{...IS,minHeight:50},value:form.allergies||"",onChange:e=>setForm({...form,allergies:e.target.value})})),
+          React.createElement("div",{style:{gridColumn:"1/-1"}},React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Condições Médicas"),React.createElement("textarea",{style:{...IS,minHeight:60},value:form.conditions||"",onChange:e=>setForm({...form,conditions:e.target.value})})),
+          React.createElement("div",{style:{gridColumn:"1/-1"}},React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Notas"),React.createElement("textarea",{style:{...IS,minHeight:50},value:form.notes||"",onChange:e=>setForm({...form,notes:e.target.value})})),
+          React.createElement("div",{style:{gridColumn:"1/-1",display:"flex",gap:8,justifyContent:"flex-end"}},React.createElement("button",{onClick:()=>setEditing(false),style:BS},"Cancelar"),React.createElement("button",{onClick:()=>{upd({...medical,[sel]:form});setEditing(false);},style:BG},"✓ Guardar"))
+        ):React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}},
+          ...[["🩸 Grupo Sanguíneo",rec.bloodType||"—"],["🛡️ Seguro",rec.insurance||"—"],["📋 Nº Apólice",rec.insuranceNum||"—"],["📞 Emergência",rec.emergencyContact||"—"],["📱 Tel. Emergência",rec.emergencyPhone||"—"]].map(([l,v])=>React.createElement("div",{key:l,style:{background:"#e6f2ea",borderRadius:10,padding:"10px 12px"}},React.createElement("div",{style:{fontSize:9,color:"#6b8672",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:3,fontWeight:"bold"}},l),React.createElement("div",{style:{fontSize:14,fontWeight:"bold",color:"#0e3a1c"}},v))),
+          ...[["⚠️ Alergias",rec.allergies||"Nenhuma","#fdf0e6"],["🏥 Condições",rec.conditions||"Nenhuma","#fceaea"],["📝 Notas",rec.notes||"—","#e3eef8"]].map(([l,v,bg])=>React.createElement("div",{key:l,style:{gridColumn:"1/-1",background:bg,borderRadius:10,padding:"10px 12px"}},React.createElement("div",{style:{fontSize:9,color:"#6b8672",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:3,fontWeight:"bold"}},l),React.createElement("div",{style:{fontSize:13,lineHeight:1.5}},v)))
+        )
+      )
+    )
+  );
+}function ParentsTab({data,upd}){
+  const {athletes,parentMsgs,messages,faqs}=data;
+  const [view,setView]=useState("inbox");const [reply,setReply]=useState({});const [broadForm,setBroadForm]=useState({text:"",escalao:"Todos"});const [faqForm,setFaqForm]=useState({question:"",answer:""});
+  const unread=parentMsgs.filter(m=>!m.read).length;
+  const athlete=id=>athletes.find(a=>a.id===id);
+  const sendReply=m=>{if(!reply[m.id]?.trim())return;upd("messages",[...messages,{id:nextId(messages),from:"Treinador",escalao:"Todos",text:`↩ Resposta a ${m.parentName}: ${reply[m.id]}`,date:today(),type:"resposta"}]);upd("parentMsgs",parentMsgs.map(x=>x.id===m.id?{...x,read:true}:x));setReply({...reply,[m.id]:""});};
+  return React.createElement("div",null,
+    React.createElement("div",{style:{display:"flex",gap:6,marginBottom:18}},[{id:"inbox",l:`📥 Mensagens${unread>0?` (${unread})`:""}`},{id:"broadcast",l:"📢 Comunicar"},{id:"faq",l:"❓ FAQ"}].map(({id,l})=>React.createElement("button",{key:id,onClick:()=>setView(id),style:{background:view===id?"linear-gradient(135deg,#0e3a1c,#1a5c2e)":"#fff",color:view===id?"#fff":"#0c1f12",border:`2px solid ${view===id?"#1a5c2e":"#e0ebe3"}`,borderRadius:10,padding:"8px 16px",cursor:"pointer",fontSize:13,fontWeight:view===id?"700":"400"}},l))),
+    view==="inbox"&&React.createElement("div",null,
+      unread>0&&React.createElement("div",{style:{display:"flex",justifyContent:"flex-end",marginBottom:10}},React.createElement("button",{onClick:()=>upd("parentMsgs",parentMsgs.map(m=>({...m,read:true}))),style:BS},"✓ Marcar todas lidas")),
+      parentMsgs.length===0&&React.createElement("div",{style:{textAlign:"center",padding:40,color:"#6b8672"}},"📭 Sem mensagens."),
+      [...parentMsgs].reverse().map(m=>{
+        const a=athlete(m.athleteId);
+        return React.createElement("div",{key:m.id,style:{background:m.read?"#fff":"#fdf6e0",borderRadius:14,padding:16,boxShadow:"0 1px 8px rgba(0,0,0,0.07)",border:`2px solid ${m.read?"#e0ebe3":"#c8a02a"}`,marginBottom:12}},
+          React.createElement("div",{style:{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:6,marginBottom:8}},
+            React.createElement("div",null,React.createElement("strong",{style:{fontSize:14}},m.parentName),a&&React.createElement("span",{style:{fontSize:11,color:"#6b8672",marginLeft:6}},`EE de ${a.name}`),!m.read&&React.createElement("span",{style:{background:"#c8a02a",color:"#0e3a1c",borderRadius:4,padding:"1px 5px",fontSize:9,marginLeft:6,fontWeight:"bold"}},"NOVA")),
+            React.createElement("span",{style:{fontSize:11,color:"#6b8672"}},fmtDate(m.date))
+          ),
+          React.createElement("div",{style:{fontSize:13,lineHeight:1.6,padding:"10px 14px",background:m.read?"#e0ebe3":"#fff",borderRadius:8,marginBottom:10}},m.text),
+          React.createElement("div",{style:{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}},
+            React.createElement("input",{style:{...IS,flex:1,minWidth:140,fontSize:12},value:reply[m.id]||"",onChange:e=>setReply({...reply,[m.id]:e.target.value}),placeholder:"Resposta..."}),
+            React.createElement("button",{onClick:()=>sendReply(m),style:BG},"↩ Responder"),
+            !m.read&&React.createElement("button",{onClick:()=>upd("parentMsgs",parentMsgs.map(x=>x.id===m.id?{...x,read:true}:x)),style:BSm("#236b36")},"✓ Lida"),
+            React.createElement("button",{onClick:()=>upd("parentMsgs",parentMsgs.filter(x=>x.id!==m.id)),style:BSm("#b32b2b")},"🗑")
+          )
+        );
+      })
+    ),
+    view==="broadcast"&&React.createElement("div",null,
+      React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 1px 8px rgba(0,0,0,0.07)",marginBottom:20}},
+        React.createElement("div",{style:{fontWeight:"700",color:"#0e3a1c",fontSize:15,marginBottom:14}},"📢 Enviar Comunicado"),
+        React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:6,fontWeight:"700"}},"Para"),
+        React.createElement("div",{style:{display:"flex",gap:4,flexWrap:"wrap",marginBottom:10}},["Todos",...ESCALOES].map(e=>React.createElement(Pill,{key:e,label:e,active:broadForm.escalao===e,onClick:()=>setBroadForm({...broadForm,escalao:e})}))),
+        React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Mensagem"),
+        React.createElement("textarea",{style:{...IS,minHeight:90,resize:"vertical",marginBottom:10},value:broadForm.text,onChange:e=>setBroadForm({...broadForm,text:e.target.value})}),
+        React.createElement("button",{onClick:()=>{if(!broadForm.text.trim())return;upd("messages",[...messages,{id:nextId(messages),from:"Treinador",escalao:broadForm.escalao,text:broadForm.text,date:today(),type:"aviso_pais"}]);setBroadForm({text:"",escalao:"Todos"});},style:BG},"📤 Publicar")
+      )
+    ),
+    view==="faq"&&React.createElement("div",null,
+      React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:20,boxShadow:"0 1px 8px rgba(0,0,0,0.07)",marginBottom:20}},
+        React.createElement("div",{style:{fontWeight:"700",color:"#0e3a1c",fontSize:15,marginBottom:14}},"➕ Adicionar FAQ"),
+        React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Pergunta"),
+        React.createElement("input",{style:{...IS,marginBottom:8},value:faqForm.question,onChange:e=>setFaqForm({...faqForm,question:e.target.value})}),
+        React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Resposta"),
+        React.createElement("textarea",{style:{...IS,minHeight:60,resize:"vertical",marginBottom:10},value:faqForm.answer,onChange:e=>setFaqForm({...faqForm,answer:e.target.value})}),
+        React.createElement("button",{onClick:()=>{if(!faqForm.question||!faqForm.answer)return;upd("faqs",[...faqs,{id:nextId(faqs),...faqForm}]);setFaqForm({question:"",answer:""});},style:BG},"+ Adicionar")
+      ),
+      faqs.map(f=>React.createElement("div",{key:f.id,style:{background:"#fff",borderRadius:12,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.06)",marginBottom:10}},
+        React.createElement("div",{style:{background:"#e6f2ea",padding:"10px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}},React.createElement("strong",{style:{fontSize:13,color:"#0e3a1c"}},`❓ ${f.question}`),React.createElement("button",{onClick:()=>upd("faqs",faqs.filter(x=>x.id!==f.id)),style:BSm("#b32b2b")},"🗑")),
+        React.createElement("div",{style:{padding:"10px 16px",fontSize:13,lineHeight:1.6}},f.answer)
+      ))
+    )
+  );
+}
+function MessagesTab({messages,upd}){
+  const [form,setForm]=useState({text:"",escalao:"Todos",type:"aviso"});
+  const TC={aviso:"#1a5c2e",convocatoria:"#1a4f7a",resposta:"#b85c18",aviso_pais:"#c8a02a"};
+  const TL={aviso:"📢 Aviso",convocatoria:"🏆 Convocatória",resposta:"↩ Resposta",aviso_pais:"👨‍👩‍👦 Pais"};
+  return React.createElement("div",null,
+    React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:18,marginBottom:20,boxShadow:"0 1px 8px rgba(0,0,0,0.07)"}},
+      React.createElement("div",{style:{fontWeight:"700",marginBottom:12,color:"#0e3a1c",fontSize:14,textTransform:"uppercase",letterSpacing:"0.5px"}},"Publicar Aviso"),
+      React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}},
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Tipo"),React.createElement("select",{style:IS,value:form.type,onChange:e=>setForm({...form,type:e.target.value})},React.createElement("option",{value:"aviso"},"📢 Aviso Geral"),React.createElement("option",{value:"convocatoria"},"🏆 Convocatória"),React.createElement("option",{value:"aviso_pais"},"👨‍👩‍👦 Para Pais"))),
+        React.createElement("div",null,React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Para"),React.createElement("div",{style:{display:"flex",gap:4,flexWrap:"wrap",marginTop:4}},["Todos",...ESCALOES].map(e=>React.createElement(Pill,{key:e,label:e,active:form.escalao===e,onClick:()=>setForm({...form,escalao:e})}))))
+      ),
+      React.createElement("textarea",{style:{...IS,minHeight:80,resize:"vertical",width:"100%",boxSizing:"border-box"},value:form.text,onChange:e=>setForm({...form,text:e.target.value})}),
+      React.createElement("button",{onClick:()=>{if(!form.text.trim())return;upd([...messages,{id:nextId(messages),from:"Treinador",escalao:form.escalao,text:form.text,date:today(),type:form.type}]);setForm({text:"",escalao:"Todos",type:"aviso"});},style:{...BG,marginTop:10}},"📤 Publicar")
+    ),
+    [...messages].reverse().map(m=>React.createElement("div",{key:m.id,style:{background:"#fff",borderRadius:12,padding:"12px 16px",marginBottom:8,boxShadow:"0 1px 4px rgba(0,0,0,0.06)",borderLeft:`4px solid ${TC[m.type]||"#1a5c2e"}`}},
+      React.createElement("div",{style:{display:"flex",justifyContent:"space-between",gap:8}},
+        React.createElement("div",{style:{flex:1}},React.createElement("div",{style:{fontSize:10,color:TC[m.type]||"#1a5c2e",fontWeight:"bold",textTransform:"uppercase",marginBottom:4}},`${TL[m.type]||m.type} · ${m.escalao}`),React.createElement("div",{style:{fontSize:13,lineHeight:1.5}},m.text),React.createElement("div",{style:{fontSize:10,color:"#6b8672",marginTop:4}},fmtDate(m.date))),
+        React.createElement("button",{onClick:()=>upd(messages.filter(x=>x.id!==m.id)),style:BSm("#b32b2b")},"🗑")
+      )
+    ))
+  );
+}
+function SettingsTab({athletes}){
+  const [newPass,setNewPass]=useState("");const [confirm,setConfirm]=useState("");const [msg,setMsg]=useState("");
+  const changePass=()=>{if(newPass.length<6){setMsg("❌ Mínimo 6 caracteres.");return;}if(newPass!==confirm){setMsg("❌ As palavras-passe não coincidem.");return;}lsSet("arc-coach-pass",newPass);setMsg("✅ Palavra-passe alterada!");setNewPass("");setConfirm("");};
+  return React.createElement("div",{style:{maxWidth:500}},
+    React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 1px 8px rgba(0,0,0,0.07)",marginBottom:20}},
+      React.createElement("h3",{style:{margin:"0 0 16px",fontFamily:"'Playfair Display',serif",color:"#0e3a1c"}},"🔐 Alterar Palavra-passe"),
+      React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Nova palavra-passe"),
+      React.createElement("input",{style:{...IS,marginBottom:8},type:"password",value:newPass,onChange:e=>setNewPass(e.target.value)}),
+      React.createElement("label",{style:{fontSize:11,color:"#6b8672",textTransform:"uppercase",display:"block",marginBottom:4,fontWeight:"700"}},"Confirmar"),
+      React.createElement("input",{style:{...IS,marginBottom:8},type:"password",value:confirm,onChange:e=>setConfirm(e.target.value)}),
+      msg&&React.createElement("div",{style:{padding:"8px 12px",borderRadius:8,background:msg.startsWith("✅")?"#e6f2ea":"#fceaea",fontSize:13,marginBottom:8}},msg),
+      React.createElement("button",{onClick:changePass,style:BG},"Guardar Nova Palavra-passe")
+    ),
+    React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 1px 8px rgba(0,0,0,0.07)"}},
+      React.createElement("h3",{style:{margin:"0 0 4px",fontFamily:"'Playfair Display',serif",color:"#0e3a1c"}},"📱 PINs dos Atletas e Pais"),
+      React.createElement("p",{style:{margin:"0 0 14px",fontSize:13,color:"#6b8672"}},"Para alterar, vai ao Plantel → Editar atleta."),
+      athletes.map(a=>React.createElement("div",{key:a.id,style:{background:"#e6f2ea",borderRadius:10,padding:"10px 14px",display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:6}},React.createElement("span",{style:{fontWeight:"700"}},a.name),React.createElement("span",{style:{color:"#6b8672"}},`Atleta: ${a.pin||"1234"} · EE: ${a.parentPin||a.parentPhone?.slice(-4)||"0000"}`)))
+    )
+  );
+}function ParentPortal({session,data,upd,onLogout}){
+  const {athletes,messages,calEvents,games,parentMsgs,faqs}=data;
+  const athlete=athletes.find(a=>a.id===session.athleteId);
+  const [tab,setTab]=useState("home");const [newMsg,setNewMsg]=useState("");
+  const myMessages=messages.filter(m=>m.escalao==="Todos"||m.escalao===athlete?.escalao);
+  const myGames=games.filter(g=>g.squad.includes(session.athleteId));
+  const myCalEvents=calEvents.filter(e=>e.escalao==="Todos"||e.escalao===athlete?.escalao);
+  function sendMessage(){if(!newMsg.trim())return;upd("parentMsgs",[...parentMsgs,{id:nextId(parentMsgs),parentName:session.name,athleteId:session.athleteId,text:newMsg,date:today(),read:false}]);setNewMsg("");alert("Mensagem enviada ao treinador!");}
+  const tabs=[{id:"home",label:"🏠 Início"},{id:"messages",label:"📢 Avisos"},{id:"games",label:"🏆 Jogos"},{id:"calendar",label:"📅 Agenda"},{id:"contact",label:"💬 Contactar"},{id:"faq",label:"❓ FAQ"}];
+  return React.createElement("div",{style:{minHeight:"100vh",background:"#f8f5ef"}},
+    React.createElement(Header,{subtitle:"Zona dos Encarregados",tabs,activeTab:tab,setTab,onLogout,userName:session.name}),
+    React.createElement("main",{style:{maxWidth:900,margin:"0 auto",padding:"20px 16px"}},
+      tab==="home"&&React.createElement("div",null,
+        React.createElement("div",{style:{background:"linear-gradient(135deg,#0e3a1c,#1a5c2e)",borderRadius:16,padding:24,color:"#fff",marginBottom:20,border:"2px solid #c8a02a"}},
+          React.createElement("div",{style:{fontSize:10,letterSpacing:"2px",textTransform:"uppercase",color:"#e2b83a",marginBottom:6}},"Bem-vindo/a"),
+          React.createElement("div",{style:{fontSize:22,fontWeight:"700",fontFamily:"'Playfair Display',serif",marginBottom:4}},session.name),
+          athlete&&React.createElement("div",{style:{fontSize:13,color:"#b4cabb"}},"Encarregado de ",React.createElement("strong",{style:{color:"#fff"}},athlete.name),` · ${athlete.escalao} · Nº ${athlete.number}`)
+        ),
+        athlete&&React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:20}},
+          [["⚽ Golos",athlete.goals,"#1a5c2e"],["🅰️ Assist.",athlete.assists,"#236b36"],["🏃 Treinos",athlete.trainings,"#c8a02a"]].map(([l,v,bg])=>React.createElement("div",{key:l,style:{background:bg,borderRadius:12,padding:14,color:bg==="#c8a02a"?"#0e3a1c":"#fff",textAlign:"center"}},React.createElement("div",{style:{fontSize:22,fontWeight:"700"}},v),React.createElement("div",{style:{fontSize:10,letterSpacing:"1px",textTransform:"uppercase",marginTop:2,opacity:0.85}},l)))
+        ),
+        React.createElement(SH,{title:"Últimos Avisos",action:()=>setTab("messages"),al:"Ver todos"}),
+        myMessages.slice(-3).reverse().map(m=>React.createElement("div",{key:m.id,style:{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,fontSize:13,borderLeft:"3px solid #1a5c2e",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}},React.createElement("div",{style:{lineHeight:1.5}},m.text.slice(0,90)),React.createElement("div",{style:{fontSize:10,color:"#6b8672",marginTop:3}},fmtDate(m.date))))
+      ),
+      tab==="messages"&&React.createElement("div",null,React.createElement(SH,{title:"Avisos do Clube"}),myMessages.length===0&&React.createElement("div",{style:{textAlign:"center",padding:40,color:"#6b8672"}},"📭 Sem avisos."),[...myMessages].reverse().map(m=>React.createElement("div",{key:m.id,style:{background:"#fff",borderRadius:12,padding:"14px 16px",marginBottom:10,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",borderLeft:"4px solid #1a5c2e"}},React.createElement("div",{style:{fontSize:13,lineHeight:1.6}},m.text),React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginTop:6}},fmtDate(m.date))))),
+      tab==="games"&&React.createElement("div",null,React.createElement(SH,{title:`Jogos de ${athlete?.name||"Atleta"}`}),[...myGames].sort((a,b)=>b.date.localeCompare(a.date)).map(g=>React.createElement("div",{key:g.id,style:{background:"#fff",borderRadius:14,padding:"14px 16px",marginBottom:10,boxShadow:"0 1px 8px rgba(0,0,0,0.07)",borderLeft:`4px solid ${g.local?"#1a5c2e":"#1a4f7a"}`}},React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:6}},React.createElement("div",null,React.createElement("div",{style:{fontWeight:"700",fontSize:15}},`${g.local?"🏠":"✈️"} vs ${g.opponent}`),React.createElement("div",{style:{fontSize:12,color:"#6b8672",marginTop:2}},`${fmtDate(g.date)} ${g.time} · ${g.competition}`),g.notes&&React.createElement("div",{style:{fontSize:12,fontStyle:"italic",marginTop:4}},`📝 ${g.notes}`)),g.result?React.createElement("span",{style:{background:"#1a5c2e",color:"#c8a02a",borderRadius:8,padding:"4px 14px",fontWeight:"700",fontSize:15}},g.result):React.createElement("span",{style:{background:"#fdf6e0",color:"#c8a02a",borderRadius:8,padding:"4px 12px",fontSize:12,border:"1px solid #c8a02a"}},"Por jogar"))))),
+      tab==="calendar"&&React.createElement("div",null,React.createElement(SH,{title:"Agenda"}),[...myCalEvents].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>React.createElement("div",{key:e.id,style:{background:"#fff",borderRadius:12,padding:"12px 16px",marginBottom:8,display:"flex",gap:12,boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}},React.createElement("div",{style:{background:"#e6f2ea",borderRadius:10,width:50,textAlign:"center",padding:"6px 4px",flexShrink:0}},React.createElement("div",{style:{fontSize:10,color:"#1a5c2e",fontWeight:"700"}},fmtDate(e.date).slice(3,5)),React.createElement("div",{style:{fontSize:18,fontWeight:"700",color:"#0e3a1c",lineHeight:1}},fmtDate(e.date).slice(0,2))),React.createElement("div",null,React.createElement("div",{style:{fontWeight:"700",fontSize:14}},e.title),React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginTop:2}},`${e.escalao}${e.location?` · 📍 ${e.location}`:""`)))))) ,
+      tab==="contact"&&React.createElement("div",null,React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 1px 8px rgba(0,0,0,0.07)"}},React.createElement("div",{style:{fontWeight:"700",fontSize:17,color:"#0e3a1c",fontFamily:"'Playfair Display',serif",marginBottom:6}},"💬 Enviar Mensagem ao Treinador"),React.createElement("p",{style:{fontSize:13,color:"#6b8672",marginTop:0,marginBottom:16}},"A tua mensagem será enviada diretamente para o treinador."),React.createElement("textarea",{style:{...IS,minHeight:100,resize:"vertical",marginBottom:12},value:newMsg,onChange:e=>setNewMsg(e.target.value),placeholder:"Escreve a tua mensagem aqui..."}),React.createElement("button",{onClick:sendMessage,style:BG},"📤 Enviar Mensagem"))),
+      tab==="faq"&&React.createElement("div",null,React.createElement(SH,{title:"Perguntas Frequentes"}),faqs.length===0&&React.createElement("div",{style:{textAlign:"center",padding:40,color:"#6b8672"}},"❓ Sem FAQs."),faqs.map(f=>React.createElement("div",{key:f.id,style:{background:"#fff",borderRadius:12,overflow:"hidden",marginBottom:10,boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}},React.createElement("div",{style:{background:"#e6f2ea",padding:"12px 16px",fontWeight:"700",fontSize:14,color:"#0e3a1c"}},`❓ ${f.question}`),React.createElement("div",{style:{padding:"12px 16px",fontSize:13,lineHeight:1.6}},f.answer))))
+    )
+  );
+}
+function AthletePortal({session,data,onLogout}){
+  const {athletes,messages,calEvents,games,trainings}=data;
+  const athlete=athletes.find(a=>a.id===session.athleteId);
+  const [tab,setTab]=useState("home");
+  if(!athlete)return React.createElement("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#f8f5ef"}},React.createElement("div",{style:{textAlign:"center",color:"#6b8672"}},React.createElement("div",{style:{fontSize:44}},"⚽"),React.createElement("div",{style:{marginTop:8}},"Atleta não encontrado."),React.createElement("button",{onClick:onLogout,style:{marginTop:12,padding:"8px 16px",background:"#1a5c2e",color:"#fff",border:"none",borderRadius:8,cursor:"pointer"}},"Voltar")));
+  const myMessages=messages.filter(m=>m.escalao==="Todos"||m.escalao===athlete.escalao);
+  const myGames=games.filter(g=>g.squad.includes(session.athleteId));
+  const myTrainings=trainings.filter(t=>t.attendees.includes(session.athleteId));
+  const myCalEvents=calEvents.filter(e=>e.escalao==="Todos"||e.escalao===athlete.escalao);
+  const tabs=[{id:"home",label:"🏠 Início"},{id:"stats",label:"📊 Stats"},{id:"games",label:"🏆 Convocatórias"},{id:"trainings",label:"🏃 Treinos"},{id:"messages",label:"📢 Avisos"},{id:"calendar",label:"📅 Agenda"}];
+  return React.createElement("div",{style:{minHeight:"100vh",background:"#f8f5ef"}},
+    React.createElement(Header,{subtitle:"Zona do Atleta",tabs,activeTab:tab,setTab,onLogout,userName:athlete.name}),
+    React.createElement("main",{style:{maxWidth:900,margin:"0 auto",padding:"20px 16px"}},
+      tab==="home"&&React.createElement("div",null,
+        React.createElement("div",{style:{background:"linear-gradient(135deg,#0e3a1c,#1a5c2e)",borderRadius:16,padding:24,color:"#fff",marginBottom:20,border:"2px solid #c8a02a",position:"relative",overflow:"hidden"}},
+          React.createElement("div",{style:{position:"absolute",right:16,top:"50%",transform:"translateY(-50%)",opacity:0.06}},React.createElement(ClubCrest,{size:130})),
+          React.createElement("div",{style:{fontSize:10,letterSpacing:"2px",textTransform:"uppercase",color:"#e2b83a",marginBottom:4}},"Bem-vindo"),
+          React.createElement("div",{style:{fontSize:26,fontWeight:"700",fontFamily:"'Playfair Display',serif"}},athlete.name),
+          React.createElement("div",{style:{fontSize:13,color:"#b4cabb",marginTop:4}},`#${athlete.number} · ${athlete.position} · ${athlete.escalao}`)
+        ),
+        React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:20}},[["⚽","Golos",athlete.goals,"#1a5c2e"],["🅰️","Assist.",athlete.assists,"#236b36"],["🏃","Treinos",myTrainings.length,"#c8a02a"]].map(([icon,l,v,bg])=>React.createElement("div",{key:l,style:{background:bg,borderRadius:12,padding:14,color:bg==="#c8a02a"?"#0e3a1c":"#fff",textAlign:"center"}},React.createElement("div",{style:{fontSize:20}},icon),React.createElement("div",{style:{fontSize:24,fontWeight:"700",lineHeight:1}},v),React.createElement("div",{style:{fontSize:10,letterSpacing:"1px",textTransform:"uppercase",marginTop:2,opacity:0.85}},l)))),
+        React.createElement(SH,{title:"Últimos Avisos"}),
+        myMessages.slice(-3).reverse().map(m=>React.createElement("div",{key:m.id,style:{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,fontSize:13,borderLeft:"3px solid #1a5c2e",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}},React.createElement("div",{style:{lineHeight:1.5}},m.text.slice(0,90)),React.createElement("div",{style:{fontSize:10,color:"#6b8672",marginTop:3}},fmtDate(m.date))))
+      ),
+      tab==="stats"&&React.createElement("div",null,React.createElement("div",{style:{background:"#fff",borderRadius:16,padding:24,boxShadow:"0 1px 8px rgba(0,0,0,0.07)"}},React.createElement("div",{style:{fontWeight:"700",fontSize:18,fontFamily:"'Playfair Display',serif",color:"#0e3a1c",marginBottom:20}},`📊 Estatísticas — ${athlete.name}`),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:12}},[["⚽","Golos",athlete.goals,"#1a5c2e"],["🅰️","Assistências",athlete.assists,"#236b36"],["🟨","Cartões Amarelos",athlete.yellowCards,"#b85c18"],["🟥","Cartões Vermelhos",athlete.redCards,"#b32b2b"],["🏃","Presenças",myTrainings.length,"#1a4f7a"],["🏆","Convocatórias",myGames.length,"#c8a02a"]].map(([icon,l,v,c])=>React.createElement("div",{key:l,style:{background:"#e6f2ea",borderRadius:12,padding:16,display:"flex",alignItems:"center",gap:12}},React.createElement("div",{style:{width:44,height:44,borderRadius:"50%",background:c,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}},icon),React.createElement("div",null,React.createElement("div",{style:{fontSize:26,fontWeight:"700",color:"#0e3a1c",lineHeight:1}},v),React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginTop:2}},l))))))),
+      tab==="games"&&React.createElement("div",null,React.createElement(SH,{title:"As Minhas Convocatórias"}),myGames.length===0&&React.createElement("div",{style:{textAlign:"center",padding:40,color:"#6b8672"}},"🏆 Sem convocatórias."),[...myGames].sort((a,b)=>b.date.localeCompare(a.date)).map(g=>React.createElement("div",{key:g.id,style:{background:"#fff",borderRadius:14,padding:"14px 16px",marginBottom:10,boxShadow:"0 1px 8px rgba(0,0,0,0.07)",borderLeft:`4px solid ${g.local?"#1a5c2e":"#1a4f7a"}`}},React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:6}},React.createElement("div",null,React.createElement("div",{style:{fontWeight:"700",fontSize:15}},`${g.local?"🏠":"✈️"} vs ${g.opponent}`),React.createElement("div",{style:{fontSize:12,color:"#6b8672",marginTop:2}},`${fmtDate(g.date)} ${g.time} · ${g.competition}`),g.notes&&React.createElement("div",{style:{fontSize:12,fontStyle:"italic",marginTop:4}},`📝 ${g.notes}`)),g.result?React.createElement("span",{style:{background:"#1a5c2e",color:"#c8a02a",borderRadius:8,padding:"4px 14px",fontWeight:"700",fontSize:15}},g.result):React.createElement("span",{style:{background:"#fdf6e0",color:"#c8a02a",borderRadius:8,padding:"4px 12px",fontSize:12,border:"1px solid #c8a02a"}},"Convocado ✓")))),
+      tab==="trainings"&&React.createElement("div",null,React.createElement(SH,{title:`Presenças (${myTrainings.length})`}),myTrainings.length===0&&React.createElement("div",{style:{textAlign:"center",padding:40,color:"#6b8672"}},"🏃 Sem presenças."),[...myTrainings].sort((a,b)=>b.date.localeCompare(a.date)).map(t=>React.createElement("div",{key:t.id,style:{background:"#fff",borderRadius:12,padding:"12px 16px",marginBottom:8,display:"flex",gap:12,alignItems:"flex-start",boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}},React.createElement("div",{style:{background:"#e6f2ea",borderRadius:10,width:50,textAlign:"center",padding:"6px 4px",flexShrink:0}},React.createElement("div",{style:{fontSize:10,color:"#1a5c2e",fontWeight:"700"}},fmtDate(t.date).slice(3,5)),React.createElement("div",{style:{fontSize:18,fontWeight:"700",color:"#0e3a1c",lineHeight:1}},fmtDate(t.date).slice(0,2))),React.createElement("div",null,React.createElement("div",{style:{fontWeight:"700",fontSize:14}},t.title),React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginTop:2}},`${t.duration} min · ${t.escalao}`),t.objectives&&React.createElement("div",{style:{fontSize:12,color:"#1a4f7a",marginTop:4,fontStyle:"italic"}},`🎯 ${t.objectives}`)),React.createElement("span",{style:{marginLeft:"auto",background:"#e6f2ea",color:"#1a5c2e",borderRadius:8,padding:"3px 8px",fontSize:11,fontWeight:"700",flexShrink:0}},"✓ Presente"))),
+      tab==="messages"&&React.createElement("div",null,React.createElement(SH,{title:"Avisos"}),[...myMessages].reverse().map(m=>React.createElement("div",{key:m.id,style:{background:"#fff",borderRadius:12,padding:"14px 16px",marginBottom:10,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",borderLeft:"4px solid #1a5c2e"}},React.createElement("div",{style:{fontSize:13,lineHeight:1.6}},m.text),React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginTop:6}},fmtDate(m.date))))),
+      tab==="calendar"&&React.createElement("div",null,React.createElement(SH,{title:"Agenda"}),[...myCalEvents].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>React.createElement("div",{key:e.id,style:{background:"#fff",borderRadius:12,padding:"12px 16px",marginBottom:8,display:"flex",gap:12,boxShadow:"0 1px 6px rgba(0,0,0,0.06)"}},React.createElement("div",{style:{background:"#e6f2ea",borderRadius:10,width:50,textAlign:"center",padding:"6px 4px",flexShrink:0}},React.createElement("div",{style:{fontSize:10,color:"#1a5c2e",fontWeight:"700"}},fmtDate(e.date).slice(3,5)),React.createElement("div",{style:{fontSize:18,fontWeight:"700",color:"#0e3a1c",lineHeight:1}},fmtDate(e.date).slice(0,2))),React.createElement("div",null,React.createElement("div",{style:{fontWeight:"700",fontSize:14}},e.title),React.createElement("div",{style:{fontSize:11,color:"#6b8672",marginTop:2}},e.escalao)))))
+    )
+  );
+}
+function App(){
+  const [session,setSession]=useState(null);
+  const [data,setData]=useState({athletes:[],medical:{},trainings:[],games:[],calEvents:[],messages:[],parentMsgs:[],faqs:[]});
+  useEffect(()=>{
+    setData({athletes:lsGet("arc-athletes",SA),medical:lsGet("arc-medical",{}),trainings:lsGet("arc-trainings",ST),games:lsGet("arc-games",SG),calEvents:lsGet("arc-calendar",SC),messages:lsGet("arc-messages",SM),parentMsgs:lsGet("arc-parentmsgs",SP),faqs:lsGet("arc-faqs",SF)});
+    const saved=sessionStorage.getItem("arc-session");
+    if(saved)setSession(JSON.parse(saved));
+  },[]);
+  function upd(key,value){setData(prev=>({...prev,[key]:value}));const k=key==="calEvents"?"arc-calendar":`arc-${key}`;lsSet(k,value);}
+  function handleLogin(sess){setSession(sess);sessionStorage.setItem("arc-session",JSON.stringify(sess));}
+  function handleLogout(){setSession(null);sessionStorage.removeItem("arc-session");}
+  if(!session)return React.createElement(Login,{onLogin:handleLogin});
+  if(session.role==="treinador")return React.createElement(CoachDashboard,{session,data,upd,onLogout:handleLogout});
+  if(session.role==="pai")return React.createElement(ParentPortal,{session,data,upd,onLogout:handleLogout});
+  if(session.role==="atleta")return React.createElement(AthletePortal,{session,data,upd:()=>{},onLogout:handleLogout});
+  return null;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
